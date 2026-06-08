@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java Chapters 1 and 2 ADA 3D Flashcards</title>
+<style>
+  :root {
+    --page-bg: #f6efe3;
+    --card-front: #ffffff;
+    --card-back: #fff8e7;
+    --ink: #102a43;
+    --accent: #d97706;
+    --accent-dark: #92400e;
+    --button-bg: #102a43;
+    --button-text: #ffffff;
+    --border: #1f2937;
+    --focus: #fbbf24;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--page-bg);
+    color: var(--ink);
+    min-height: 100vh;
+    line-height: 1.5;
+  }
+
+  .skip-link {
+    position: absolute;
+    left: -999px;
+    top: 8px;
+    background: #ffffff;
+    color: #000000;
+    border: 3px solid var(--focus);
+    padding: 10px 14px;
+    z-index: 1000;
+  }
+
+  .skip-link:focus {
+    left: 8px;
+  }
+
+  header {
+    text-align: center;
+    padding: 24px 16px 12px;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    margin: 8px auto 0;
+    max-width: 850px;
+    font-size: 1.05rem;
+  }
+
+  .instructions {
+    width: min(92vw, 900px);
+    margin: 12px auto;
+    background: #ffffff;
+    border: 2px solid var(--border);
+    border-left: 8px solid var(--accent);
+    border-radius: 14px;
+    padding: 14px 18px;
+    font-size: 1rem;
+  }
+
+  .toolbar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 16px;
+  }
+
+  button {
+    border: 2px solid var(--border);
+    background: var(--button-bg);
+    color: var(--button-text);
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background: var(--accent-dark);
+  }
+
+  button:focus,
+  .flashcard:focus {
+    outline: 4px solid var(--focus);
+    outline-offset: 4px;
+  }
+
+  .secondary-button {
+    background: #ffffff;
+    color: var(--ink);
+  }
+
+  .secondary-button:hover {
+    color: #ffffff;
+  }
+
+  .counter {
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 18px;
+    font-weight: bold;
+  }
+
+  main {
+    width: min(92vw, 900px);
+    margin: 0 auto;
+    padding-bottom: 32px;
+  }
+
+  .scene {
+    width: 100%;
+    height: 500px;
+    perspective: 1200px;
+    margin-top: 10px;
+  }
+
+  .flashcard {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.7s ease;
+    cursor: pointer;
+  }
+
+  .flashcard.is-flipped {
+    transform: rotateY(180deg);
+  }
+
+  body.reduce-motion .flashcard {
+    transition: none;
+  }
+
+  body.reduce-motion .flashcard.is-flipped {
+    transform: none;
+  }
+
+  body.reduce-motion .front {
+    display: flex;
+  }
+
+  body.reduce-motion .back {
+    display: none;
+    transform: none;
+  }
+
+  body.reduce-motion .flashcard.is-flipped .front {
+    display: none;
+  }
+
+  body.reduce-motion .flashcard.is-flipped .back {
+    display: flex;
+  }
+
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    border: 3px solid var(--border);
+    border-radius: 24px;
+    box-shadow: 0 18px 35px rgba(0, 0, 0, 0.25);
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: auto;
+  }
+
+  .front {
+    background: linear-gradient(145deg, var(--card-front), #eaf3ff);
+  }
+
+  .back {
+    background: linear-gradient(145deg, var(--card-back), #ffffff);
+    transform: rotateY(180deg);
+  }
+
+  .label {
+    color: var(--accent-dark);
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
+  }
+
+  .card-title {
+    font-size: 2rem;
+    margin: 0 0 18px;
+  }
+
+  .card-text {
+    font-size: 1.18rem;
+  }
+
+  pre {
+    background: #111827;
+    color: white;
+    padding: 16px;
+    border-radius: 14px;
+    font-size: 1rem;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    line-height: 1.45;
+  }
+
+  .hint {
+    margin-top: 16px;
+    border-left: 6px solid var(--accent);
+    padding-left: 12px;
+    font-weight: bold;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .status {
+    text-align: center;
+    font-weight: bold;
+    min-height: 28px;
+    margin: 14px auto 0;
+  }
+
+  .alt-text {
+    width: min(92vw, 900px);
+    margin: 16px auto;
+    background: #ffffff;
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 18px;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    background: white;
+    margin-top: 10px;
+  }
+
+  th, td {
+    border: 2px solid var(--border);
+    padding: 8px;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  th {
+    background: #eaf3ff;
+  }
+
+  @media (max-width: 640px) {
+    .scene {
+      height: 620px;
+    }
+
+    .card-face {
+      padding: 22px;
+    }
+
+    .card-title {
+      font-size: 1.55rem;
+    }
+
+    .card-text {
+      font-size: 1.05rem;
+    }
+
+    button {
+      width: 100%;
+    }
+
+    .counter {
+      width: 100%;
+      text-align: center;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .flashcard {
+      transition: none;
+    }
+  }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#mainContent">Skip to flashcards</a>
+
+<header>
+  <h1>Java Chapters 1 and 2 3D Flashcards</h1>
+  <p class="subtitle">ADA-friendly interactive flashcards with one question on the front and one answer on the back.</p>
+</header>
+
+<section class="instructions" aria-labelledby="instructionsTitle">
+  <h2 id="instructionsTitle">Instructions</h2>
+  <p>Click the card to flip it. You can also use the Tab key to move to the card, then press Enter or Space to flip it. Use Previous, Next, and Shuffle to move through the cards.</p>
+</section>
+
+<nav class="toolbar" aria-label="Flashcard controls">
+  <button type="button" id="previousBtn">Previous</button>
+  <button type="button" id="nextBtn">Next</button>
+  <button type="button" id="shuffleBtn">Shuffle</button>
+  <button type="button" id="flipBtn">Flip Card</button>
+  <button type="button" class="secondary-button" id="motionBtn" aria-pressed="false">Reduce Motion</button>
+  <span class="counter" id="counter" aria-live="polite">Card 1 of 26</span>
+</nav>
+
+<main id="mainContent">
+  <p class="sr-only" id="srInstructions">Press Enter or Space while focused on the flashcard to flip it.</p>
+
+  <section class="scene" aria-labelledby="frontTitle">
+    <article class="flashcard" id="flashcard" tabindex="0" role="button" aria-describedby="srInstructions" aria-pressed="false">
+      <div class="card-face front" aria-hidden="false">
+        <div class="label">Question Side</div>
+        <h2 class="card-title" id="frontTitle"></h2>
+        <div class="card-text" id="frontText"></div>
+        <p class="hint">Think first, then click to check your answer.</p>
+      </div>
+
+      <div class="card-face back" aria-hidden="true">
+        <div class="label">Answer Side</div>
+        <h2 class="card-title" id="backTitle"></h2>
+        <div class="card-text" id="backText"></div>
+        <p class="hint">Click again to return to the question.</p>
+      </div>
+    </article>
+  </section>
+
+  <p class="status" id="statusText" aria-live="polite"></p>
+</main>
+
+<section class="alt-text" aria-labelledby="altTextTitle">
+  <h2 id="altTextTitle">Alt-text description</h2>
+  <p>This interactive flashcard activity teaches beginning Java concepts from Chapters 1 and 2. Each card has a question on the front and an answer with a short Java or pseudocode example on the back. Topics include pseudocode, probability, special symbols, indentation, programming errors, variables, constants, Scanner input, and mathematical operations.</p>
+</section>
+
+<script>
+const cards = [
+  {
+    frontTitle: "What is pseudocode?",
+    frontText: "Before writing Java code, how can we describe the steps of a program in plain language?",
+    backTitle: "Pseudocode uses plain language steps.",
+    backText: `<pre><code>Start
+Prompt user to enter number of items
+Read numberOfItems
+Prompt user to enter price per item
+Read pricePerItem
+Set revenue = numberOfItems * pricePerItem
+Print revenue
+End</code></pre>`
+  },
+  {
+    frontTitle: "Probability pseudocode",
+    frontText: "How can we find the probability of selecting an orange jellybean?",
+    backTitle: "Divide orange beans by total beans.",
+    backText: `<pre><code>Start
+Read red
+Read blue
+Read orange
+Read green
+Set total = red + blue + orange + green
+Set probability = orange / total
+Print probability
+End</code></pre>`
+  },
+  {
+    frontTitle: "Trace variable values",
+    frontText: "If a starts at 0 and b starts at -2, then a adds 3 and b adds -8. What is c if c = a + b?",
+    backTitle: "c is -7.",
+    backText: `<pre><code>a = 0
+b = -2
+a = a + 3      // a is 3
+b = b + (-8)   // b is -10
+c = a + b      // c is -7</code></pre><p>If a changes later, c does not change unless the program calculates c again.</p>`
+  },
+  {
+    frontTitle: "Coin value pseudocode",
+    frontText: "How can we calculate the total value of quarters, dimes, and nickels in pennies?",
+    backTitle: "Multiply each coin count by its penny value.",
+    backText: `<pre><code>Start
+Input quarters
+Input dimes
+Input nickels
+Set total = (quarters * 25) + (dimes * 10) + (nickels * 5)
+Output total
+End</code></pre>`
+  },
+  {
+    frontTitle: "First Java program",
+    frontText: "What are the basic parts of a simple Java program that prints a message?",
+    backTitle: "Class, main method, and print statement.",
+    backText: `<pre><code>public class Welcome {
+  public static void main(String[] args) {
+    System.out.println("Welcome to Java!");
+  }
+}</code></pre>`
+  },
+  {
+    frontTitle: "Class name",
+    frontText: "How should a Java class name be written?",
+    backTitle: "Start each word with an uppercase letter.",
+    backText: `<pre><code>public class ComputeArea {
+
+}</code></pre><p>The file name should match the public class name, such as ComputeArea.java.</p>`
+  },
+  {
+    frontTitle: "Main method",
+    frontText: "Where does a Java program start running?",
+    backTitle: "The program starts in the main method.",
+    backText: `<pre><code>public static void main(String[] args) {
+
+}</code></pre>`
+  },
+  {
+    frontTitle: "Java statement",
+    frontText: "What is a statement in Java?",
+    backTitle: "A statement is an action.",
+    backText: `<pre><code>System.out.println("Welcome to Java!");</code></pre><p>This statement displays a message.</p>`
+  },
+  {
+    frontTitle: "Statement terminator",
+    frontText: "What symbol marks the end of most Java statements?",
+    backTitle: "A semicolon marks the end of a statement.",
+    backText: `<pre><code>int x = 1;</code></pre>`
+  },
+  {
+    frontTitle: "Special symbol: braces",
+    frontText: "What do opening and closing braces do in Java?",
+    backTitle: "Braces define a block.",
+    backText: `<pre><code>{
+  System.out.println("Hello");
+}</code></pre><p>A block groups statements together.</p>`
+  },
+  {
+    frontTitle: "Special symbol: parentheses",
+    frontText: "What are parentheses used for in Java?",
+    backTitle: "Parentheses are used with methods.",
+    backText: `<pre><code>System.out.println("Hello");</code></pre><p>The method information goes inside the parentheses.</p>`
+  },
+  {
+    frontTitle: "Special symbol: brackets",
+    frontText: "What do square brackets often represent?",
+    backTitle: "Brackets can denote an array.",
+    backText: `<pre><code>String[] args</code></pre><p>This appears in the main method header.</p>`
+  },
+  {
+    frontTitle: "Special symbol: double slashes",
+    frontText: "What do two forward slashes mean?",
+    backTitle: "They begin a single-line comment.",
+    backText: `<pre><code>// This is a comment.</code></pre><p>Java ignores comments when running the program.</p>`
+  },
+  {
+    frontTitle: "Special symbol: quotation marks",
+    frontText: "What do double quotation marks enclose?",
+    backTitle: "They enclose a string.",
+    backText: `<pre><code>System.out.println("Hello");</code></pre><p>Hello is a string of characters.</p>`
+  },
+  {
+    frontTitle: "Proper indentation",
+    frontText: "How should code inside a block be indented in this course?",
+    backTitle: "Indent two spaces.",
+    backText: `<pre><code>public class Welcome {
+  public static void main(String[] args) {
+    System.out.println("Welcome");
+  }
+}</code></pre><p>Use blank lines to separate parts of code when helpful.</p>`
+  },
+  {
+    frontTitle: "Syntax error",
+    frontText: "What type of error is detected by the compiler?",
+    backTitle: "A syntax error.",
+    backText: `<pre><code>System.out.println("Welcome to Java);</code></pre><p>This has a missing quotation mark, so the compiler can detect the problem.</p>`
+  },
+  {
+    frontTitle: "Runtime error",
+    frontText: "What type of error causes the program to abort while running?",
+    backTitle: "A runtime error.",
+    backText: `<pre><code>System.out.println(1 / 0);</code></pre><p>Dividing by zero causes an error during program execution.</p>`
+  },
+  {
+    frontTitle: "Logic error",
+    frontText: "What type of error produces an incorrect result even though the program runs?",
+    backTitle: "A logic error.",
+    backText: `<pre><code>System.out.println((9 / 5) * 35 + 32);</code></pre><p>The formula runs, but integer division may cause the wrong Fahrenheit result.</p>`
+  },
+  {
+    frontTitle: "Declare an int variable",
+    frontText: "How do you declare a variable that stores a whole number?",
+    backTitle: "Use int.",
+    backText: `<pre><code>int age;
+int count = 5;</code></pre>`
+  },
+  {
+    frontTitle: "Declare a double variable",
+    frontText: "How do you declare a variable that stores a decimal number?",
+    backTitle: "Use double.",
+    backText: `<pre><code>double radius;
+double price = 19.99;</code></pre>`
+  },
+  {
+    frontTitle: "Declare a char variable",
+    frontText: "How do you declare a variable that stores one character?",
+    backTitle: "Use char.",
+    backText: `<pre><code>char grade = 'A';</code></pre><p>Use single quotation marks for a char.</p>`
+  },
+  {
+    frontTitle: "Declaring and initializing",
+    frontText: "How do you declare a variable and give it a value in one step?",
+    backTitle: "Write the type, name, equals sign, and value.",
+    backText: `<pre><code>int x = 1;
+double d = 1.4;</code></pre>`
+  },
+  {
+    frontTitle: "Named constants",
+    frontText: "How do you create a value that should not change?",
+    backTitle: "Use final.",
+    backText: `<pre><code>final double PI = 3.14159;
+final int SIZE = 3;</code></pre><p>Constants are usually written in uppercase letters.</p>`
+  },
+  {
+    frontTitle: "Read numbers from the keyboard",
+    frontText: "How can Java read an integer typed by the user?",
+    backTitle: "Use Scanner and nextInt().",
+    backText: `<pre><code>Scanner input = new Scanner(System.in);
+int value = input.nextInt();</code></pre><p>Other methods include nextDouble(), nextFloat(), and nextLong().</p>`
+  },
+  {
+    frontTitle: "Numeric operators",
+    frontText: "Which symbols are used for basic mathematical operations in Java?",
+    backTitle: "Use +, -, *, /, and %.",
+    backText: `<table>
+<tr><th>Operator</th><th>Meaning</th><th>Example</th></tr>
+<tr><td>+</td><td>Addition</td><td>a + b</td></tr>
+<tr><td>-</td><td>Subtraction</td><td>a - b</td></tr>
+<tr><td>*</td><td>Multiplication</td><td>a * b</td></tr>
+<tr><td>/</td><td>Division</td><td>a / b</td></tr>
+<tr><td>%</td><td>Remainder</td><td>a % b</td></tr>
+</table>`
+  },
+  {
+    frontTitle: "Integer division",
+    frontText: "What are the results of 5 / 2, 5.0 / 2, and 5 % 2?",
+    backTitle: "Integer division drops the decimal.",
+    backText: `<pre><code>5 / 2    gives 2
+5.0 / 2  gives 2.5
+5 % 2    gives 1</code></pre><p>The percent sign gives the remainder.</p>`
+  }
+];
+
+let currentIndex = 0;
+let flipped = false;
+
+const flashcard = document.getElementById("flashcard");
+const frontFace = document.querySelector(".front");
+const backFace = document.querySelector(".back");
+const frontTitle = document.getElementById("frontTitle");
+const frontText = document.getElementById("frontText");
+const backTitle = document.getElementById("backTitle");
+const backText = document.getElementById("backText");
+const counter = document.getElementById("counter");
+const statusText = document.getElementById("statusText");
+const motionBtn = document.getElementById("motionBtn");
+
+function showCard() {
+  const card = cards[currentIndex];
+  flipped = false;
+  flashcard.classList.remove("is-flipped");
+  flashcard.setAttribute("aria-pressed", "false");
+  frontFace.setAttribute("aria-hidden", "false");
+  backFace.setAttribute("aria-hidden", "true");
+
+  frontTitle.textContent = card.frontTitle;
+  frontText.innerHTML = card.frontText;
+  backTitle.textContent = card.backTitle;
+  backText.innerHTML = card.backText;
+
+  counter.textContent = `Card ${currentIndex + 1} of ${cards.length}`;
+  statusText.textContent = `Showing card ${currentIndex + 1}: ${card.frontTitle}.`;
+  flashcard.setAttribute("aria-label", `Flashcard ${currentIndex + 1}. Question side: ${card.frontTitle}. Click or press Enter or Space to flip.`);
+  if (typeof markCardViewed === "function") {
+    markCardViewed();
+  }
+}
+
+function flipCard() {
+  flipped = !flipped;
+  flashcard.classList.toggle("is-flipped", flipped);
+  flashcard.setAttribute("aria-pressed", flipped ? "true" : "false");
+  frontFace.setAttribute("aria-hidden", flipped ? "true" : "false");
+  backFace.setAttribute("aria-hidden", flipped ? "false" : "true");
+
+  const card = cards[currentIndex];
+  const side = flipped ? "Answer side" : "Question side";
+  const title = flipped ? card.backTitle : card.frontTitle;
+  statusText.textContent = `${side}: ${title}.`;
+  flashcard.setAttribute("aria-label", `Flashcard ${currentIndex + 1}. ${side}: ${title}. Click or press Enter or Space to flip.`);
+}
+
+function nextCard() {
+  currentIndex = (currentIndex + 1) % cards.length;
+  showCard();
+}
+
+function previousCard() {
+  currentIndex = (currentIndex - 1 + cards.length) % cards.length;
+  showCard();
+}
+
+function shuffleCards() {
+  for (let i = cards.length - 1; i > 0; i--) {
+    const randomIndex = Math.floor(Math.random() * (i + 1));
+    [cards[i], cards[randomIndex]] = [cards[randomIndex], cards[i]];
+  }
+  currentIndex = 0;
+  showCard();
+  statusText.textContent = "Cards shuffled. Showing the first card in the new order.";
+}
+
+function toggleMotion() {
+  const reduced = document.body.classList.toggle("reduce-motion");
+  motionBtn.setAttribute("aria-pressed", reduced ? "true" : "false");
+  motionBtn.textContent = reduced ? "Turn 3D Motion On" : "Reduce Motion";
+  statusText.textContent = reduced ? "Reduced motion is on. The card still changes sides without animation." : "3D flip animation is on.";
+}
+
+flashcard.addEventListener("click", flipCard);
+
+flashcard.addEventListener("keydown", function(event) {
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    flipCard();
+  }
+});
+
+document.getElementById("flipBtn").addEventListener("click", flipCard);
+document.getElementById("nextBtn").addEventListener("click", nextCard);
+document.getElementById("previousBtn").addEventListener("click", previousCard);
+document.getElementById("shuffleBtn").addEventListener("click", shuffleCards);
+motionBtn.addEventListener("click", toggleMotion);
+
+
+/* SCORM 1.2 tracking: gives 10 points after all cards are viewed */
+let viewedCards = new Set();
+
+function findAPI(win) {
+  let attempts = 0;
+  while (win.API == null && win.parent != null && win.parent != win && attempts < 10) {
+    attempts++;
+    win = win.parent;
+  }
+  return win.API;
+}
+
+let scormAPI = null;
+let scormReady = false;
+let scoreSent = false;
+
+function scormInitialize() {
+  scormAPI = findAPI(window);
+  if (scormAPI) {
+    scormReady = scormAPI.LMSInitialize("") === "true";
+    if (scormReady) {
+      scormAPI.LMSSetValue("cmi.core.lesson_status", "incomplete");
+      scormAPI.LMSSetValue("cmi.core.score.min", "0");
+      scormAPI.LMSSetValue("cmi.core.score.max", "10");
+      scormAPI.LMSSetValue("cmi.core.score.raw", "0");
+      scormAPI.LMSCommit("");
+    }
+  }
+}
+
+function markCardViewed() {
+  viewedCards.add(currentIndex);
+  if (viewedCards.size >= cards.length && !scoreSent) {
+    scoreSent = true;
+    statusText.textContent = "All flashcards viewed. Score sent: 10 out of 10.";
+    if (scormReady && scormAPI) {
+      scormAPI.LMSSetValue("cmi.core.score.raw", "10");
+      scormAPI.LMSSetValue("cmi.core.lesson_status", "passed");
+      scormAPI.LMSCommit("");
+    }
+  }
+}
+
+function scormFinish() {
+  if (scormReady && scormAPI) {
+    scormAPI.LMSCommit("");
+    scormAPI.LMSFinish("");
+  }
+}
+
+window.addEventListener("load", function() {
+  scormInitialize();
+  markCardViewed();
+});
+
+window.addEventListener("beforeunload", scormFinish);
+
+showCard();
+</script>
+</body>
+</html>
