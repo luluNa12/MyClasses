@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CIT 130: Phone Usage Tracker — Interactive Java Lesson</title>
+<style>
+:root{--bg:#f6f8fc;--surface:#fff;--surface2:#edf3ff;--text:#1f2937;--muted:#526070;--border:#c9d7ee;--accent:#2454d6;--accent2:#007c89;--success:#147d3f;--error:#b42318;--codebg:#101828;--codetext:#f9fafb;--radius:16px;--mono:Consolas,"Courier New",monospace;--sans:Arial,Helvetica,sans-serif}
+*{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.55}
+.skip-link{position:absolute;left:-999px;top:8px;background:#fff;color:#000;padding:10px 14px;border:3px solid var(--accent);border-radius:8px;z-index:9999}.skip-link:focus{left:8px}
+header{background:linear-gradient(135deg,#dbeafe,#fff 72%);border-bottom:4px solid var(--accent);padding:28px 20px;text-align:center}
+.badge{display:inline-block;background:#fff;border:2px solid var(--accent);color:var(--accent);border-radius:999px;padding:7px 14px;font-weight:700;font-size:.9rem;margin-bottom:12px}
+h1{margin:0 0 8px;font-size:clamp(1.7rem,4vw,2.7rem)}.subtitle{max-width:880px;margin:0 auto;color:var(--muted);font-size:1.05rem}
+.progress-wrap{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.96);border-bottom:1px solid var(--border);padding:12px 18px}
+.progress-label{max-width:1220px;margin:0 auto 8px;display:flex;justify-content:space-between;gap:10px;color:var(--muted);font-weight:700;font-size:.9rem}
+.progress-bar{max-width:1220px;margin:0 auto;height:12px;background:#e5e7eb;border-radius:999px;overflow:hidden;border:1px solid var(--border)}
+.progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .25s ease}
+main{max-width:1220px;margin:0 auto;padding:24px 18px 40px;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(360px,.95fr);gap:22px}
+@media(max-width:980px){main{grid-template-columns:1fr}.code-panel{position:static!important}}
+.panel-title{font-weight:800;color:var(--accent);margin:0 0 14px;letter-spacing:.03em;text-transform:uppercase;font-size:.88rem}
+.note{background:#fff7ed;border:2px solid #fed7aa;border-radius:12px;padding:12px 14px;margin-bottom:14px;color:#7c2d12;font-weight:700}
+.step-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);margin-bottom:14px;overflow:hidden;opacity:.72}
+.step-card:not(.active):not(.completed){opacity:.45;pointer-events:none}.step-card.active{opacity:1;border-color:var(--accent);box-shadow:0 0 0 4px rgba(36,84,214,.12)}.step-card.completed{opacity:1;border-color:var(--success)}
+.step-header{display:flex;align-items:center;gap:12px;background:var(--surface2);padding:14px 16px;border-bottom:1px solid var(--border)}
+.step-number{width:34px;height:34px;border-radius:50%;display:inline-flex;justify-content:center;align-items:center;background:#d1d5db;color:#111827;font-weight:800;flex:0 0 auto}
+.step-card.active .step-number{background:var(--accent);color:#fff}.step-card.completed .step-number{background:var(--success);color:#fff}.step-title{font-weight:800;flex:1}.step-tag{font-family:var(--mono);font-size:.74rem;background:#fff;border:1px solid var(--border);border-radius:999px;padding:4px 9px;color:var(--accent2);font-weight:800}
+.step-body{padding:16px}.step-instruction{color:var(--muted);margin:0 0 12px}code{font-family:var(--mono);background:#eef2ff;color:#1e3a8a;padding:2px 5px;border-radius:5px}
+.input-group{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start}@media(max-width:640px){.input-group{grid-template-columns:1fr}}
+.step-input{width:100%;min-height:44px;resize:vertical;font-family:var(--mono);font-size:.95rem;line-height:1.5;padding:10px 12px;border:2px solid var(--border);border-radius:10px;color:var(--text);background:#fff}
+.step-input:focus{outline:4px solid rgba(36,84,214,.22);border-color:var(--accent)}.step-input.success{border-color:var(--success)}.step-input.error{border-color:var(--error)}
+button{font:inherit}.btn-check,.btn-copy{border:none;border-radius:10px;font-weight:800;cursor:pointer}.btn-check{background:var(--accent);color:#fff;padding:12px 18px;min-width:104px}.btn-copy{background:#0f766e;color:#fff;padding:10px 14px;margin-left:auto}
+.btn-check:hover,.btn-copy:hover{filter:brightness(.95)}.btn-check:focus-visible,.btn-copy:focus-visible{outline:4px solid #fbbf24;outline-offset:3px}
+.feedback{display:none;margin-top:12px;border-radius:10px;padding:10px 12px;font-weight:700}.feedback.show{display:block}.feedback.ok{color:var(--success);background:#ecfdf3;border:1px solid #a7f3d0}.feedback.bad{color:var(--error);background:#fff1f2;border:1px solid #fecdd3}
+.code-panel{position:sticky;top:86px;height:fit-content}.code-tools{display:flex;align-items:center;gap:10px;margin-bottom:12px}.code-tools .panel-title{margin:0;flex:1}
+.code-window{background:var(--codebg);border-radius:var(--radius);overflow:hidden;border:3px solid #1f2937;box-shadow:0 14px 30px rgba(15,23,42,.22)}
+.titlebar{background:#1f2937;color:#e5e7eb;padding:12px 14px;font-family:var(--mono);display:flex;justify-content:space-between;align-items:center;gap:12px}
+.code-body{min-height:435px;max-height:560px;overflow:auto;padding:16px 12px 22px;color:var(--codetext);font-family:var(--mono);font-size:.9rem;line-height:1.65}
+.code-line{display:grid;grid-template-columns:42px 1fr;gap:12px}.line-num{color:#94a3b8;text-align:right;user-select:none}.line-code{white-space:pre}.cursor-line .line-code{border-left:3px solid #fbbf24;min-height:1.5em}
+.phone-card{margin-top:18px;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:18px}.stats p{margin:6px 0;color:var(--muted);font-weight:700}.stats span{color:var(--accent)}
+.final-message{margin:18px 0 0;padding:14px;border:2px solid #a7f3d0;background:#ecfdf3;color:#065f46;border-radius:12px;display:none;font-weight:800}.final-message.show{display:block}
+footer{max-width:1220px;margin:0 auto;padding:18px;color:var(--muted);text-align:center;border-top:1px solid var(--border)}.sr-live{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a><div class="sr-live" id="liveRegion" aria-live="polite" aria-atomic="true"></div>
+<header><div class="badge">CIT 130 — Introduction to Java Programming</div><h1>Phone Usage Tracker</h1><p class="subtitle">Build the Phone Usage Tracker program step by step. Copy and paste is allowed in answer boxes for testing and editing.</p></header>
+<section class="progress-wrap" aria-label="Lesson progress"><div class="progress-label"><span id="progressText">Step 1 of 15 — Import Scanner</span><span id="progressPct">0%</span></div><div class="progress-bar" role="progressbar" aria-label="Lesson completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressBar"><div class="progress-fill" id="progressFill"></div></div></section>
+
+<main id="main-content">
+<section class="lesson-panel" aria-label="Coding steps">
+<h2 class="panel-title">Your Coding Steps</h2>
+<div class="note">Rules: You may choose meaningful variable names. Declare each variable on its own line, one statement per line. Do not declare multiple variables on one line separated by commas. Phone hours and social media hours use <code>double</code>. Phone checks use <code>int</code>. No casting.</div>
+<div id="steps"></div>
+</section>
+<aside class="code-panel" aria-label="Live code preview">
+<div class="code-tools"><h2 class="panel-title">Live Code Preview</h2><button class="btn-copy" onclick="copyCurrentCode()">Copy Current Code</button></div>
+<div class="code-window"><div class="titlebar"><span>PhoneUsageTracker.java</span><span id="copyStatus" aria-live="polite"></span></div><div class="code-body" id="codeBody" aria-live="polite"></div></div>
+<div class="phone-card"><div class="stats"><p>Weekly phone hours: <span id="weeklyHoursViz">?</span></p><p>Monthly phone hours: <span id="monthlyHoursViz">?</span></p><p>Weekly phone checks: <span id="weeklyChecksViz">?</span></p><p>Monthly phone checks: <span id="monthlyChecksViz">?</span></p></div><div class="final-message" id="finalMessage">Program complete! The full code stays visible and can be copied.</div></div>
+</aside>
+</main>
+<footer>CIT 130 — Interactive Java Practice</footer>
+
+<script>
+const TOTAL_STEPS = 15;
+let currentStep = 1;
+const completedSteps = new Set();
+
+const names = {
+  scanner:'input',
+  name:'',
+  dailyPhoneHours:'',
+  dailyPhoneChecks:'',
+  dailySocialMediaHours:'',
+  weeklyPhoneHours:'',
+  monthlyPhoneHours:'',
+  weeklyPhoneChecks:'',
+  monthlyPhoneChecks:'',
+  weeklySocialMediaHours:'',
+  monthlySocialMediaHours:''
+};
+
+const reservedWords = new Set(['abstract','assert','boolean','break','byte','case','catch','char','class','const','continue','default','do','double','else','enum','extends','final','finally','float','for','goto','if','implements','import','instanceof','int','interface','long','native','new','package','private','protected','public','return','short','static','strictfp','super','switch','synchronized','this','throw','throws','transient','try','void','volatile','while','true','false','null']);
+
+const stepData = [
+ null,
+ ['Import Scanner','IMPORT','Import the Scanner class so the program can read input from the keyboard.',1],
+ ['Create the Class','CLASS','Create a public class named <code>PhoneUsageTracker</code> and open the class body.',1],
+ ['Create the Main Method','METHOD','Create the main method where Java begins running the program.',1],
+ ['Create a Scanner Object','OBJECT','Create a Scanner object to read from the keyboard. You may use <code>input</code> or another standard object name.',1],
+ ['Declare User Name Variable','STRING','Declare one <code>String</code> variable for the user’s name. You may choose any meaningful camelCase variable name.',1],
+ ['Declare Daily Input Variables','VARIABLES','Declare the three daily input variables, one per line: daily phone hours as <code>double</code>, daily phone checks as <code>int</code>, and daily social media hours as <code>double</code>.',3],
+ ['Declare Phone Hour Result Variables','VARIABLES','Declare two <code>double</code> variables for weekly phone hours and monthly phone hours. Write each declaration on its own line.',2],
+ ['Declare Phone Check Result Variables','VARIABLES','Declare two <code>int</code> variables for weekly phone checks and monthly phone checks. Write each declaration on its own line.',2],
+ ['Declare Social Media Result Variables','VARIABLES','Declare two <code>double</code> variables for weekly social media hours and monthly social media hours. Write each declaration on its own line.',2],
+ ['Ask and Read User Name','INPUT','Ask the user to enter their name, then read it using <code>nextLine()</code>.',2],
+ ['Ask and Read Daily Phone Hours','INPUT','Ask how many hours the user uses the phone per day, then read the decimal value.',2],
+ ['Ask and Read Daily Phone Checks','INPUT','Ask how many times the user checks the phone per day, then read the whole number.',2],
+ ['Ask and Read Daily Social Media Hours','INPUT','Ask how many hours the user spends on social media per day, then read the decimal value.',2],
+ ['Calculate Results','PROCESS','Calculate weekly/monthly phone hours, weekly/monthly phone checks, and weekly/monthly social media hours.',6],
+ ['Display Report and Close Program','OUTPUT','Print the report title, weekly and monthly phone usage, weekly and monthly phone checks, weekly and monthly social media usage, and the final message. Do not display daily phone checks in the report. Close the main method and class.',13]
+];
+
+const messages = {
+  1:['Type the Scanner import statement and include the semicolon.','Correct. Scanner is imported.'],
+  2:['Check the class name PhoneUsageTracker and the opening curly brace.','Correct. The class is created.'],
+  3:['Check the main method header and the opening curly brace.','Correct. The main method is ready.'],
+  4:['Create a Scanner object using a standard object name such as input or keyboardInput.','Correct. The Scanner object is ready.'],
+  5:['Declare one String variable using any meaningful camelCase variable name.','Correct. The name variable is declared.'],
+  6:['Declare double, int, double in that order: daily phone hours, daily phone checks, daily social media hours.','Correct. Daily input variables are declared.'],
+  7:['Declare two double variables: weekly phone hours and monthly phone hours.','Correct. Phone hour result variables are declared.'],
+  8:['Declare two int variables: weekly phone checks and monthly phone checks.','Correct. Phone check result variables are declared.'],
+  9:['Declare two double variables: weekly social media hours and monthly social media hours.','Correct. Social media result variables are declared.'],
+  10:['Ask for the user name and read it with nextLine().','Correct. User name is read.'],
+  11:['Ask for daily phone hours and read it with nextDouble().','Correct. Daily phone hours are read.'],
+  12:['Ask for daily phone checks and read it with nextInt().','Correct. Daily phone checks are read.'],
+  13:['Ask for daily social media hours and read it with nextDouble().','Correct. Daily social media hours are read.'],
+  14:['Calculate all six totals using the selected variable names.','Correct. Results are calculated.'],
+  15:['Print the report title, weekly/monthly results, final message with the name variable, and the two closing braces. Do not print daily phone checks.','Correct. Program complete.']
+};
+
+function buildSteps(){
+  const holder=document.getElementById('steps');
+  for(let i=1;i<=TOTAL_STEPS;i++){
+    const [title,tag,instruction,rows]=stepData[i];
+    holder.insertAdjacentHTML('beforeend',`
+      <article class="step-card ${i===1?'active':''}" id="step-${i}" aria-label="Step ${i}: ${title}">
+        <div class="step-header"><span class="step-number">${i}</span><span class="step-title">${title}</span><span class="step-tag">${tag}</span></div>
+        <div class="step-body">
+          <p class="step-instruction">${instruction}</p>
+          <div class="input-group"><textarea class="step-input" id="input-${i}" rows="${rows}" aria-label="Step ${i} answer" autocomplete="off" spellcheck="false"></textarea><button class="btn-check" onclick="check(${i})">Check ✓</button></div>
+          <div class="feedback" id="fb-${i}" role="alert"></div>
+        </div>
+      </article>`);
+  }
+}
+
+function clean(t){return (t||'').replace(/[“”]/g,'"').replace(/[‘’]/g,"'").replace(/\r\n/g,'\n').trim();}
+function compact(t){return clean(t).replace(/\s+/g,' ').replace(/\s*([=+*\/(),;{}\[\]])\s*/g,'$1').replace(/\s+/g,' ');}
+function esc(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
+function isIdentifier(name){return /^[A-Za-z][A-Za-z0-9]*$/.test(name) && !reservedWords.has(name);}
+function isDataName(name){return isIdentifier(name) && /^[a-z][A-Za-z0-9]*$/.test(name);}
+function usedExcept(keys){return Object.entries(names).filter(([k,v])=>v && !keys.includes(k)).map(([k,v])=>v);}
+function unique(vars,keys){const all=[...usedExcept(keys),...vars]; return new Set(all).size===all.length;}
+function oneDecl(type,line){const m=clean(line).match(new RegExp('^'+type+'\\s+([A-Za-z][A-Za-z0-9]*)\\s*;$')); return m&&isDataName(m[1])?m[1]:null;}
+function declLines(text){return clean(text).split('\n').map(x=>x.trim()).filter(Boolean);}
+function hasPrint(text){return /System\.out\.print(?:ln)?\s*\(\s*"[^"]*"/.test(clean(text));}
+function hasRead(text,variable,scanner,method){return new RegExp('(^|\\n)\\s*'+esc(variable)+'\\s*=\\s*'+esc(scanner)+'\\s*\\.\\s*'+method+'\\s*\\(\\s*\\)\\s*;').test(clean(text));}
+function noCasting(text){return !/\(\s*int\s*\)|\(\s*double\s*\)/.test(text);}
+function validateStep(n, raw, commit=true){
+  const text=clean(raw), c=compact(text), cc=c.replace(/\s/g,'');
+  let ok=false;
+  if(n===1) ok=/^import java\.util\.Scanner;$/.test(c);
+  else if(n===2) ok=/^public class PhoneUsageTracker\{$/.test(c);
+  else if(n===3) ok=/^public static void main\(String\[\]args\)\{$/.test(c);
+  else if(n===4){let m=text.match(/^Scanner\s+([A-Za-z][A-Za-z0-9]*)\s*=\s*new\s+Scanner\s*\(\s*System\.in\s*\)\s*;$/); ok=!!m&&isDataName(m[1])&&unique([m[1]],['scanner']); if(ok&&commit)names.scanner=m[1];}
+  else if(n===5){let v=oneDecl('String',text); ok=!!v&&unique([v],['name']); if(ok&&commit)names.name=v;}
+  else if(n===6){
+    const l=declLines(text);
+    const a=l[0]?oneDecl('double',l[0]):null, b=l[1]?oneDecl('int',l[1]):null, d=l[2]?oneDecl('double',l[2]):null;
+    ok=l.length===3&&a&&b&&d&&unique([a,b,d],['dailyPhoneHours','dailyPhoneChecks','dailySocialMediaHours']);
+    if(ok&&commit){names.dailyPhoneHours=a;names.dailyPhoneChecks=b;names.dailySocialMediaHours=d;}
+  }
+  else if(n===7){
+    const l=declLines(text); const a=l[0]?oneDecl('double',l[0]):null, b=l[1]?oneDecl('double',l[1]):null;
+    ok=l.length===2&&a&&b&&unique([a,b],['weeklyPhoneHours','monthlyPhoneHours']);
+    if(ok&&commit){names.weeklyPhoneHours=a;names.monthlyPhoneHours=b;}
+  }
+  else if(n===8){
+    const l=declLines(text); const a=l[0]?oneDecl('int',l[0]):null, b=l[1]?oneDecl('int',l[1]):null;
+    ok=l.length===2&&a&&b&&unique([a,b],['weeklyPhoneChecks','monthlyPhoneChecks']);
+    if(ok&&commit){names.weeklyPhoneChecks=a;names.monthlyPhoneChecks=b;}
+  }
+  else if(n===9){
+    const l=declLines(text); const a=l[0]?oneDecl('double',l[0]):null, b=l[1]?oneDecl('double',l[1]):null;
+    ok=l.length===2&&a&&b&&unique([a,b],['weeklySocialMediaHours','monthlySocialMediaHours']);
+    if(ok&&commit){names.weeklySocialMediaHours=a;names.monthlySocialMediaHours=b;}
+  }
+  else if(n===10) ok=hasPrint(text)&&hasRead(text,names.name,names.scanner,'nextLine');
+  else if(n===11) ok=hasPrint(text)&&hasRead(text,names.dailyPhoneHours,names.scanner,'nextDouble');
+  else if(n===12) ok=hasPrint(text)&&hasRead(text,names.dailyPhoneChecks,names.scanner,'nextInt');
+  else if(n===13) ok=hasPrint(text)&&hasRead(text,names.dailySocialMediaHours,names.scanner,'nextDouble');
+  else if(n===14){
+    ok=noCasting(text)
+      && new RegExp(esc(names.weeklyPhoneHours)+'='+esc(names.dailyPhoneHours)+'\\*7;').test(cc)
+      && new RegExp(esc(names.monthlyPhoneHours)+'='+esc(names.dailyPhoneHours)+'\\*30;').test(cc)
+      && new RegExp(esc(names.weeklyPhoneChecks)+'='+esc(names.dailyPhoneChecks)+'\\*7;').test(cc)
+      && new RegExp(esc(names.monthlyPhoneChecks)+'='+esc(names.dailyPhoneChecks)+'\\*30;').test(cc)
+      && new RegExp(esc(names.weeklySocialMediaHours)+'='+esc(names.dailySocialMediaHours)+'\\*7;').test(cc)
+      && new RegExp(esc(names.monthlySocialMediaHours)+'='+esc(names.dailySocialMediaHours)+'\\*30;').test(cc);
+  }
+  else if(n===15){
+    /* Step 15 was made more flexible. Students may write extra blank lines,
+       slightly different wording, or place the final message in a few acceptable ways.
+       The checker now verifies the important learning goals instead of one exact wording. */
+    const requiredVars=[
+      names.weeklyPhoneHours,
+      names.monthlyPhoneHours,
+      names.weeklyPhoneChecks,
+      names.monthlyPhoneChecks,
+      names.weeklySocialMediaHours,
+      names.monthlySocialMediaHours,
+      names.name
+    ].filter(Boolean);
+
+    const hasClosingBraces = /}\s*}\s*$/.test(text);
+    const hasReportTitle = /phone\s+usage\s+report/i.test(text);
+    const hasFinalMessage = /healthy\s+balance/i.test(text) || /screen\s+time/i.test(text) || /real\s+life/i.test(text);
+    const hasPrintStatements = (text.match(/System\.out\.print(?:ln)?\s*\(/g) || []).length >= 7;
+    const hasAllVariables = requiredVars.every(v => new RegExp('(^|[^A-Za-z0-9_])' + esc(v) + '([^A-Za-z0-9_]|$)').test(text));
+    const doesNotPrintDailyPhoneChecks = !new RegExp('Daily\\s+phone\\s+checks[^\\n]*' + esc(names.dailyPhoneChecks), 'i').test(text);
+
+    ok = hasReportTitle
+      && hasFinalMessage
+      && hasPrintStatements
+      && hasAllVariables
+      && doesNotPrintDailyPhoneChecks
+      && hasClosingBraces;
+  }
+  return ok;
+}
+
+function generatedLines(n){
+  switch(n){
+    case 1:return ['import java.util.Scanner;'];
+    case 2:return ['', 'public class PhoneUsageTracker {'];
+    case 3:return ['    public static void main(String[] args) {'];
+    case 4:return [`        Scanner ${names.scanner} = new Scanner(System.in);`];
+    case 5:return ['',`        String ${names.name};`];
+    case 6:return ['',`        double ${names.dailyPhoneHours};`,`        int ${names.dailyPhoneChecks};`,`        double ${names.dailySocialMediaHours};`];
+    case 7:return ['',`        double ${names.weeklyPhoneHours};`,`        double ${names.monthlyPhoneHours};`];
+    case 8:return [`        int ${names.weeklyPhoneChecks};`,`        int ${names.monthlyPhoneChecks};`];
+    case 9:return [`        double ${names.weeklySocialMediaHours};`,`        double ${names.monthlySocialMediaHours};`];
+    case 10:return ['',`        System.out.print("Enter your name: ");`,`        ${names.name} = ${names.scanner}.nextLine();`];
+    case 11:return ['',`        System.out.print("How many hours do you use your phone per day? ");`,`        ${names.dailyPhoneHours} = ${names.scanner}.nextDouble();`];
+    case 12:return ['',`        System.out.print("How many times do you check your phone per day? ");`,`        ${names.dailyPhoneChecks} = ${names.scanner}.nextInt();`];
+    case 13:return ['',`        System.out.print("How many hours do you spend on social media per day? ");`,`        ${names.dailySocialMediaHours} = ${names.scanner}.nextDouble();`];
+    case 14:return ['',`        ${names.weeklyPhoneHours} = ${names.dailyPhoneHours} * 7;`,`        ${names.monthlyPhoneHours} = ${names.dailyPhoneHours} * 30;`,`        ${names.weeklyPhoneChecks} = ${names.dailyPhoneChecks} * 7;`,`        ${names.monthlyPhoneChecks} = ${names.dailyPhoneChecks} * 30;`,`        ${names.weeklySocialMediaHours} = ${names.dailySocialMediaHours} * 7;`,`        ${names.monthlySocialMediaHours} = ${names.dailySocialMediaHours} * 30;`];
+    case 15:return ['',`        System.out.println();`,`        System.out.println("===== Phone Usage Report =====");`,`        System.out.println("Weekly phone usage: " + ${names.weeklyPhoneHours} + " hours");`,`        System.out.println("Monthly phone usage: " + ${names.monthlyPhoneHours} + " hours");`,`        System.out.println("Weekly phone checks: " + ${names.weeklyPhoneChecks});`,`        System.out.println("Monthly phone checks: " + ${names.monthlyPhoneChecks});`,`        System.out.println("Weekly social media usage: " + ${names.weeklySocialMediaHours} + " hours");`,`        System.out.println("Monthly social media usage: " + ${names.monthlySocialMediaHours} + " hours");`,'',`        System.out.println(${names.name} + ", try to keep a healthy balance between screen time and real life!");`,'    }','}'];
+    default:return [];
+  }
+}
+
+function revalidateDeclarations(){for(const n of [4,5,6,7,8,9]){if(completedSteps.has(n))validateStep(n,document.getElementById('input-'+n).value,true);}}
+function check(n){
+  const input=document.getElementById('input-'+n), fb=document.getElementById('fb-'+n);
+  revalidateDeclarations();
+  if(validateStep(n,input.value,true)){
+    completedSteps.add(n);
+    fb.textContent=messages[n][1]; fb.className='feedback show ok'; input.className='step-input success';
+    document.getElementById('step-'+n).classList.add('completed'); document.getElementById('step-'+n).classList.remove('active');
+    renderCode(); updateVisuals(); announce(messages[n][1]);
+    if(n===currentStep && n<TOTAL_STEPS){
+      currentStep=n+1;
+      setTimeout(()=>{const next=document.getElementById('step-'+currentStep); next.classList.add('active'); next.scrollIntoView({behavior:'smooth',block:'center'}); document.getElementById('input-'+currentStep).focus(); updateProgress();},350);
+    } else updateProgress();
+    if(completedSteps.size===TOTAL_STEPS){document.getElementById('finalMessage').classList.add('show');}
+  } else {
+    fb.textContent=messages[n][0]; fb.className='feedback show bad'; input.className='step-input error'; input.focus(); announce(messages[n][0]);
+    input.addEventListener('input',()=>{input.className='step-input'; fb.className='feedback';},{once:true});
+  }
+}
+function renderCode(){
+  revalidateDeclarations();
+  const lines=[]; for(let i=1;i<=TOTAL_STEPS;i++){if(completedSteps.has(i))generatedLines(i).forEach(x=>lines.push(x));}
+  window.currentCode=lines.join('\n').trimEnd();
+  const body=document.getElementById('codeBody'); body.innerHTML='';
+  lines.forEach((line,i)=>{const row=document.createElement('div'); row.className='code-line'; const num=document.createElement('span'); num.className='line-num'; num.textContent=i+1; const code=document.createElement('span'); code.className='line-code'; code.textContent=line||' '; row.append(num,code); body.appendChild(row);});
+  const cur=document.createElement('div'); cur.className='code-line cursor-line'; const num=document.createElement('span'); num.className='line-num'; num.textContent=lines.length+1; const code=document.createElement('span'); code.className='line-code'; code.textContent=' '; cur.append(num,code); body.appendChild(cur);
+}
+function copyCurrentCode(){
+  const code=window.currentCode||''; const status=document.getElementById('copyStatus');
+  if(!code.trim()){status.textContent='Nothing to copy yet'; return;}
+  const done=()=>{status.textContent='Copied!'; setTimeout(()=>status.textContent='',1600);};
+  if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(code).then(done).catch(()=>fallbackCopy(code,done)); else fallbackCopy(code,done);
+}
+function fallbackCopy(text,cb){const temp=document.createElement('textarea'); temp.value=text; temp.setAttribute('readonly',''); temp.style.position='fixed'; temp.style.left='-9999px'; document.body.appendChild(temp); temp.select(); try{document.execCommand('copy');}catch(e){} document.body.removeChild(temp); cb();}
+function updateProgress(){const done=completedSteps.size,pct=Math.round((done/TOTAL_STEPS)*100);document.getElementById('progressFill').style.width=pct+'%';document.getElementById('progressPct').textContent=pct+'%';document.getElementById('progressText').textContent=done<TOTAL_STEPS?`Step ${currentStep} of ${TOTAL_STEPS} — ${stepData[currentStep][0]}`:'All 15 steps complete!';document.getElementById('progressBar').setAttribute('aria-valuenow',pct);}
+function updateVisuals(){if(completedSteps.has(14)){document.getElementById('weeklyHoursViz').textContent='daily hours × 7';document.getElementById('monthlyHoursViz').textContent='daily hours × 30';document.getElementById('weeklyChecksViz').textContent='daily checks × 7';document.getElementById('monthlyChecksViz').textContent='daily checks × 30';}}
+function announce(msg){const live=document.getElementById('liveRegion'); live.textContent=''; setTimeout(()=>live.textContent=msg,40);}
+function enableLiveEdits(){document.querySelectorAll('.step-input').forEach(input=>{input.addEventListener('input',()=>{const n=parseInt(input.id.replace('input-',''),10); if(completedSteps.has(n)){const ok=validateStep(n,input.value,true); input.className=ok?'step-input success':'step-input error'; if(ok)renderCode();}});});}
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.ctrlKey&&e.target.classList.contains('step-input')){const n=parseInt(e.target.id.replace('input-',''),10); if(!Number.isNaN(n))check(n);}});
+buildSteps(); updateProgress(); renderCode(); enableLiveEdits();
+</script>
+</body>
+</html>
