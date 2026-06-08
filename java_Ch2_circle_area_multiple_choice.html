@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CIT 130 — Java Circle Area Interactive</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f0f4ff;
+  --card: #ffffff;
+  --ink: #172033;
+  --muted: #5d6b82;
+  --line: #d9e2ef;
+  --accent: #2563eb;
+  --accent2: #f59e0b;
+  --good: #16a34a;
+  --bad: #dc2626;
+  --soft: #eef5ff;
+  --code: #0f172a;
+  --codeText: #e2e8f0;
+  --radius: 16px;
+  --hint: #7c3aed;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+/* CONFETTI CANVAS */
+#confetti-canvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+}
+/* CELEBRATION OVERLAY */
+#celebration {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15,23,42,0.7);
+  z-index: 9000;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+#celebration.show { display: flex; }
+.celebration-box {
+  background: white;
+  border-radius: 28px;
+  padding: 48px 56px;
+  text-align: center;
+  max-width: 520px;
+  width: 90%;
+  box-shadow: 0 40px 80px rgba(0,0,0,.35);
+  animation: popIn .5s cubic-bezier(.175,.885,.32,1.275);
+}
+@keyframes popIn {
+  from { transform: scale(.6); opacity: 0; }
+  to   { transform: scale(1);  opacity: 1; }
+}
+.celebration-box .trophy { font-size: 5rem; display: block; margin-bottom: 16px; animation: spin 1s ease; }
+@keyframes spin { from { transform: rotate(-20deg) scale(.5); } to { transform: rotate(0) scale(1); } }
+.celebration-box h2 { font-size: 2rem; font-weight: 900; color: var(--accent); margin-bottom: 10px; }
+.celebration-box p { color: var(--muted); font-size: 1.05rem; margin-bottom: 24px; }
+.celebration-box .stars { font-size: 2rem; letter-spacing: 6px; margin-bottom: 20px; }
+.btn-close-cel {
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 13px 32px;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+  transition: transform .15s;
+}
+.btn-close-cel:hover { transform: scale(1.04); }
+
+/* HEADER */
+header {
+  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #7c3aed 100%);
+  color: white;
+  padding: 40px 22px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+header h1 { position:relative; margin: 0 0 10px; font-size: clamp(1.6rem, 4vw, 2.6rem); font-weight: 900; }
+header p { position:relative; margin: 0 auto; max-width: 700px; opacity: .9; font-size: 1.05rem; }
+
+/* PROGRESS */
+.progress-wrap {
+  position: sticky; top: 0; z-index: 50;
+  background: white; border-bottom: 2px solid var(--line);
+  padding: 12px 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.06);
+}
+.progress-row {
+  max-width: 1180px; margin: 0 auto 8px;
+  display: flex; justify-content: space-between; gap: 20px;
+  color: var(--muted); font-size: .9rem; font-weight: 600;
+}
+.progress { max-width: 1180px; margin: 0 auto; height: 12px; background: #e9eef7; border-radius: 999px; overflow: hidden; }
+.progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #2563eb, #7c3aed, #f59e0b); transition: width .4s ease; border-radius: 999px; }
+
+/* MAIN GRID */
+main { max-width: 1180px; margin: 0 auto; padding: 28px 20px 60px; display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+@media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+
+/* PANELS */
+.panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 6px 24px rgba(17,31,58,.08); overflow: hidden; }
+.panel-head { padding: 16px 20px; background: var(--soft); border-bottom: 1px solid var(--line); }
+.panel-head h2 { font-size: 1.1rem; font-weight: 800; }
+.panel-head p { margin: 4px 0 0; color: var(--muted); font-size: .88rem; }
+
+/* STEPS */
+.steps { padding: 16px; }
+.rule-box { background: #fffbeb; border: 1px solid #fcd34d; border-radius: 12px; padding: 12px 14px; color: #78350f; font-size: .88rem; margin-bottom: 16px; }
+.rule-box strong { display: block; margin-bottom: 3px; }
+
+.step { border: 2px solid var(--line); border-radius: 14px; margin-bottom: 14px; overflow: hidden; opacity: .4; pointer-events: none; transition: opacity .3s, border-color .3s, box-shadow .3s; }
+.step.active { opacity: 1; pointer-events: auto; border-color: var(--accent); box-shadow: 0 0 0 4px rgba(37,99,235,.12); }
+.step.done { opacity: .85; border-color: rgba(22,163,74,.5); pointer-events: none; }
+
+.step-title { display: flex; gap: 10px; align-items: center; padding: 12px 14px; background: #f8faff; border-bottom: 1px solid var(--line); }
+.badge { width: 32px; height: 32px; border-radius: 50%; background: #e9eef7; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: .85rem; flex-shrink: 0; transition: background .3s; }
+.step.active .badge { background: var(--accent); color: white; }
+.step.done .badge { background: var(--good); color: white; }
+.step-title strong { flex: 1; font-weight: 700; }
+.tag { font-size: .68rem; color: var(--accent); background: #dbeafe; padding: 3px 9px; border-radius: 999px; font-weight: 800; }
+
+.step-body { padding: 14px; }
+.step-body > p { margin-top: 0; color: var(--muted); font-size: .9rem; }
+
+/* MULTIPLE CHOICE */
+.mc-label { font-size: .8rem; font-weight: 800; color: var(--hint); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.mc-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+@media (max-width: 600px) { .mc-options { grid-template-columns: 1fr; } }
+.mc-btn {
+  background: #f8faff; border: 2px solid var(--line); border-radius: 10px;
+  padding: 9px 12px; font-family: 'Space Mono', monospace; font-size: .78rem;
+  cursor: pointer; text-align: left; color: var(--ink); line-height: 1.4;
+  transition: all .18s; font-weight: 400; word-break: break-all;
+}
+.mc-btn:hover { border-color: var(--hint); background: #f3f0ff; }
+.mc-btn.selected-wrong { border-color: var(--bad); background: #fff0f0; color: var(--bad); animation: shake .35s; }
+.mc-btn.selected-right { border-color: var(--good); background: #f0fdf4; color: var(--good); }
+@keyframes shake {
+  0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)}
+}
+
+/* DIVIDER */
+.or-divider { text-align:center; color: var(--muted); font-size: .8rem; font-weight: 700; margin: 10px 0; position:relative; }
+.or-divider::before,.or-divider::after { content:''; position:absolute; top:50%; width:42%; height:1px; background:var(--line); }
+.or-divider::before{left:0} .or-divider::after{right:0}
+
+/* TEXT INPUT ROW */
+.input-row { display: flex; gap: 8px; flex-wrap: wrap; }
+input[type="text"] {
+  flex: 1; min-width: 180px; padding: 10px 12px; border-radius: 10px;
+  border: 2px solid var(--line); font-family: 'Space Mono', monospace; font-size: .88rem;
+  background: #f8faff; color: var(--ink);
+}
+input[type="text"]:focus { outline: 3px solid rgba(37,99,235,.18); border-color: var(--accent); }
+input[type="text"]:disabled { opacity: .6; cursor: not-allowed; }
+
+/* BUTTONS */
+button.check {
+  background: var(--accent); color: white; border: none; border-radius: 10px;
+  padding: 10px 16px; font-weight: 800; cursor: pointer; font-family: 'Nunito', sans-serif;
+  transition: background .15s;
+}
+button.check:hover { background: #1d4ed8; }
+button.back {
+  background: #e9eef7; color: var(--ink); border: none; border-radius: 10px;
+  padding: 10px 18px; font-weight: 700; cursor: pointer; font-family: 'Nunito', sans-serif;
+  margin-top: 4px;
+}
+
+/* FEEDBACK */
+.feedback { display: none; margin-top: 10px; border-radius: 10px; padding: 9px 12px; font-size: .88rem; font-weight: 600; }
+.feedback.show { display: block; }
+.feedback.good { background: #f0fdf4; color: var(--good); border: 1.5px solid #bbf7d0; }
+.feedback.bad  { background: #fff0f0; color: var(--bad);  border: 1.5px solid #fecaca; }
+.attempts-badge { font-size: .75rem; color: var(--muted); font-weight: 700; margin-top: 5px; }
+
+/* CODE PANEL */
+.code-panel { position: sticky; top: 72px; align-self: start; }
+@media (max-width: 900px) { .code-panel { position: static; } }
+.code-window { background: var(--code); color: var(--codeText); padding: 18px; font-family: 'Space Mono', monospace; min-height: 400px; overflow-x: auto; font-size: .82rem; line-height: 1.7; }
+.code-line { white-space: pre; min-height: 1.7em; }
+.code-comment { color: #64748b; }
+.code-key { color: #7dd3fc; }
+.code-type { color: #fbbf24; }
+.code-string { color: #86efac; }
+.code-new { animation: flashLine .6s; }
+@keyframes flashLine { 0%{background:rgba(37,99,235,.3)} 100%{background:transparent} }
+
+.output-card { margin: 16px; border: 1px solid var(--line); border-radius: 14px; padding: 16px; background: #f8faff; }
+.output-card h3 { margin: 0 0 10px; font-size: .95rem; font-weight: 800; }
+.sample-output { background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 14px; font-family: 'Space Mono', monospace; font-size: .8rem; overflow-x: auto; line-height: 1.8; }
+
+.complete-msg { display: none; margin: 16px; padding: 14px 16px; border-radius: 12px; background: #f0fdf4; border: 1.5px solid #bbf7d0; color: var(--good); font-weight: 700; font-size: .95rem; }
+.complete-msg.show { display: block; }
+
+.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+
+footer { text-align: center; padding: 22px; color: var(--muted); border-top: 1px solid var(--line); background: white; font-size: .9rem; }
+</style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<!-- CELEBRATION OVERLAY -->
+<div id="celebration" role="dialog" aria-modal="true" aria-label="Congratulations">
+  <div class="celebration-box">
+    <span class="trophy">🏆</span>
+    <div class="stars">⭐⭐⭐⭐⭐</div>
+    <h2>Outstanding Work!</h2>
+    <p>You've successfully written the complete Java Circle Area program — all 16 steps, perfectly done. Your code is ready to run!</p>
+    <button class="btn-close-cel" onclick="closeCelebration()">🎉 See My Code!</button>
+  </div>
+</div>
+
+<div class="sr-only" aria-live="polite" aria-atomic="true" id="live"></div>
+
+<header>
+  <h1>CIT 130 — Java Circle Area</h1>
+  <p>Chapter 2 practice: choose the correct answer or type it yourself. If you pick wrong, try again!</p>
+</header>
+
+<section class="progress-wrap" aria-label="Lesson progress">
+  <div class="progress-row">
+    <span id="progressText">Step 1 of 16 — Import Scanner</span>
+    <span id="progressPct">0%</span>
+  </div>
+  <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress">
+    <div class="progress-bar" id="bar"></div>
+  </div>
+</section>
+
+<main id="main">
+  <section class="panel" aria-label="Interactive coding steps">
+    <div class="panel-head">
+      <h2>📝 Your Coding Steps</h2>
+      <p>Pick the correct choice or type the answer. Wrong guesses? Try again — no limit!</p>
+    </div>
+    <div class="steps">
+      <div class="rule-box">
+        <strong>📌 Instructor Rules</strong>
+        You may use any meaningful variable names, but must keep them consistent. Prompt messages may vary as long as they ask for the correct input.
+      </div>
+
+      <!-- Steps generated via JS below -->
+      <div id="steps-container"></div>
+      <button class="back" onclick="goBack()">← Go Back One Step</button>
+    </div>
+  </section>
+
+  <aside class="panel code-panel" aria-label="Live code preview">
+    <div class="panel-head">
+      <h2>💻 Live Code Preview</h2>
+      <p>Your program builds as you complete each step.</p>
+    </div>
+    <div class="code-window" id="code"></div>
+    <div class="complete-msg" id="complete">✅ Program complete! Copy it and run it in your IDE.</div>
+    <div class="output-card">
+      <h3>📟 Sample Output</h3>
+      <div class="sample-output">
+Enter your name: <span style="color:#fbbf24">Lina</span><br>
+Enter the radius: <span style="color:#fbbf24">5</span><br>
+<span style="color:#86efac">Lina, the area is 78.54</span>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<footer>CIT 130 — Introduction to Java Programming | Chapter 2 Interactive Lesson</footer>
+
+<script>
+// ── DATA ────────────────────────────────────────────────────────────────────
+
+const TOTAL = 16;
+const state = { current: 1, scanner:"scanner", name:"name", radius:"radius", area:"area", lines:[], attempts:{} };
+
+const defaultLines = {
+  1:'import java.util.Scanner;',
+  2:'public class CircleArea {',
+  3:'    public static void main(String[] args) {',
+  4:'        Scanner scanner = new Scanner(System.in);',
+  5:'        String name;',
+  6:'        final double PI = 3.1416;',
+  7:'        double radius = 0;',
+  8:'        double area;',
+  9:'        System.out.print("Enter your name: ");',
+  10:'        name = scanner.nextLine();',
+  11:'        System.out.print("Enter the radius: ");',
+  12:'        radius = scanner.nextDouble();',
+  13:'        area = PI * radius * radius;',
+  14:'        System.out.println(name + ", the area is " + area);',
+  15:'    }',
+  16:'}'
+};
+
+// Each step: { title, tag, desc, choices: [{label, correct}] }
+const stepDefs = [
+  { title:"Import Scanner", tag:"IMPORT", desc:"Import the Scanner class so the program can read keyboard input.",
+    choices:[
+      {label:'import java.util.Scanner;', correct:true},
+      {label:'import Scanner;', correct:false},
+      {label:'include java.util.Scanner;', correct:false},
+      {label:'import java.Scanner;', correct:false},
+    ]},
+  { title:"Create the Class", tag:"CLASS", desc:"Create a public class named CircleArea and open the class body.",
+    choices:[
+      {label:'public class CircleArea {', correct:true},
+      {label:'class circleArea {', correct:false},
+      {label:'public Class CircleArea {', correct:false},
+      {label:'public class Circle {', correct:false},
+    ]},
+  { title:"Create the Main Method", tag:"METHOD", desc:"Create the main method where Java begins running the program.",
+    choices:[
+      {label:'public static void main(String[] args) {', correct:true},
+      {label:'public void main(String args) {', correct:false},
+      {label:'static void Main(String[] args) {', correct:false},
+      {label:'public static main(String[] args) {', correct:false},
+    ]},
+  { title:"Create Scanner Object", tag:"OBJECT", desc:"Create a Scanner object connected to System.in. You may use any meaningful name.",
+    choices:[
+      {label:'Scanner scanner = new Scanner(System.in);', correct:true},
+      {label:'Scanner scanner = new Scanner();', correct:false},
+      {label:'Scanner scanner = Scanner(System.in);', correct:false},
+      {label:'scanner = new Scanner(System.in);', correct:false},
+    ]},
+  { title:"Declare Name Variable", tag:"STRING", desc:"Declare a String variable for the user's name (e.g. name, userName).",
+    choices:[
+      {label:'String name;', correct:true},
+      {label:'string name;', correct:false},
+      {label:'String Name = "";', correct:false},
+      {label:'String = name;', correct:false},
+    ]},
+  { title:"Declare PI Constant", tag:"CONSTANT", desc:"Declare PI as a final double constant equal to 3.1416.",
+    choices:[
+      {label:'final double PI = 3.1416;', correct:true},
+      {label:'double PI = 3.1416;', correct:false},
+      {label:'final double pi = 3.1416;', correct:false},
+      {label:'const double PI = 3.1416;', correct:false},
+    ]},
+  { title:"Declare Radius Variable", tag:"DOUBLE", desc:"Declare a double variable for radius initialized to 0.",
+    choices:[
+      {label:'double radius = 0;', correct:true},
+      {label:'Double radius = 0;', correct:false},
+      {label:'double radius;', correct:false},
+      {label:'int radius = 0;', correct:false},
+    ]},
+  { title:"Declare Area Variable", tag:"DOUBLE", desc:"Declare a double variable for the area (not initialized).",
+    choices:[
+      {label:'double area;', correct:true},
+      {label:'double area = 0;', correct:false},
+      {label:'Double area;', correct:false},
+      {label:'int area;', correct:false},
+    ]},
+  { title:"Prompt for Name", tag:"INPUT", desc:"Ask the user to enter their name using System.out.print or println.",
+    choices:[
+      {label:'System.out.print("Enter your name: ");', correct:true},
+      {label:'System.out.print("Enter the radius: ");', correct:false},
+      {label:'System.println("Enter your name: ");', correct:false},
+      {label:'print("Enter your name: ");', correct:false},
+    ]},
+  { title:"Read Name", tag:"READ", desc:"Read the user's name from keyboard input using nextLine().",
+    choices:[
+      {label:'name = scanner.nextLine();', correct:true},
+      {label:'name = scanner.next();', correct:false},
+      {label:'name = scanner.nextDouble();', correct:false},
+      {label:'scanner.nextLine(name);', correct:false},
+    ]},
+  { title:"Prompt for Radius", tag:"INPUT", desc:"Ask the user to enter the radius.",
+    choices:[
+      {label:'System.out.print("Enter the radius: ");', correct:true},
+      {label:'System.out.print("Enter your name: ");', correct:false},
+      {label:'System.out.print("The radius is: ");', correct:false},
+      {label:'System.out.println(radius);', correct:false},
+    ]},
+  { title:"Read Radius", tag:"READ", desc:"Read the radius using nextDouble() into your radius variable.",
+    choices:[
+      {label:'radius = scanner.nextDouble();', correct:true},
+      {label:'radius = scanner.nextLine();', correct:false},
+      {label:'radius = Scanner.nextDouble();', correct:false},
+      {label:'double radius = scanner.nextDouble();', correct:false},
+    ]},
+  { title:"Calculate Area", tag:"PROCESS", desc:"Calculate the area: area = PI * radius * radius;",
+    choices:[
+      {label:'area = PI * radius * radius;', correct:true},
+      {label:'area = 3.14 * radius * radius;', correct:false},
+      {label:'area = PI + radius + radius;', correct:false},
+      {label:'area = PI * radius;', correct:false},
+    ]},
+  { title:"Display Final Message", tag:"OUTPUT", desc:"Print the name and area using System.out.println.",
+    choices:[
+      {label:'System.out.println(name + ", the area is " + area);', correct:true},
+      {label:'System.out.print(name + area);', correct:false},
+      {label:'System.out.println("The area is " + area);', correct:false},
+      {label:'System.out.println(area);', correct:false},
+    ]},
+  { title:"Close Main Method", tag:"SYNTAX", desc:"Close the main method with one closing curly brace.",
+    choices:[
+      {label:'}', correct:true},
+      {label:'};', correct:false},
+      {label:'))', correct:false},
+      {label:'end', correct:false},
+    ]},
+  { title:"Close Class", tag:"SYNTAX", desc:"Close the class body with one closing curly brace.",
+    choices:[
+      {label:'}', correct:true},
+      {label:'};', correct:false},
+      {label:') }', correct:false},
+      {label:'end class', correct:false},
+    ]},
+];
+
+const messages = {
+  1: ['✅ Correct! Scanner is imported.','❌ Not quite — try another choice or type it!'],
+  2: ['✅ Correct! The class is declared.','❌ Not quite — remember: public class CircleArea {'],
+  3: ['✅ Correct! main method created.','❌ Not quite — check the method signature carefully.'],
+  4: ['✅ Correct! Scanner object created.','❌ Not quite — you need: new Scanner(System.in)'],
+  5: ['✅ Correct! String variable declared.','❌ Not quite — Java uses capital S in String.'],
+  6: ['✅ Correct! PI constant declared.','❌ Not quite — use final double PI = 3.1416;'],
+  7: ['✅ Correct! radius variable declared.','❌ Not quite — declare double radius = 0;'],
+  8: ['✅ Correct! area variable declared.','❌ Not quite — use double area; (no initialization needed).'],
+  9: ['✅ Correct! Name prompt output.','❌ Not quite — use System.out.print or println asking for name.'],
+  10:['✅ Correct! Name read with nextLine().','❌ Not quite — assign scanner.nextLine() to your name variable.'],
+  11:['✅ Correct! Radius prompt output.','❌ Not quite — use System.out.print asking for radius.'],
+  12:['✅ Correct! Radius read with nextDouble().','❌ Not quite — assign scanner.nextDouble() to your radius variable.'],
+  13:['✅ Correct! Area calculated.','❌ Not quite — use PI * radius * radius.'],
+  14:['✅ Correct! Output displays name and area.','❌ Not quite — println must include both name and area.'],
+  15:['✅ Correct! Main method closed.','❌ Not quite — just a single } closes the method.'],
+  16:['✅ Correct! Class closed.','❌ Not quite — just a single } closes the class.'],
+};
+
+// ── BUILD STEPS HTML ─────────────────────────────────────────────────────────
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length-1; i>0; i--) { const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+function buildSteps() {
+  const container = document.getElementById('steps-container');
+  stepDefs.forEach((def, idx) => {
+    const n = idx + 1;
+    const shuffled = shuffle(def.choices);
+    const mcHtml = shuffled.map((c, ci) =>
+      `<button class="mc-btn" id="mc-${n}-${ci}" onclick="selectChoice(${n}, ${ci}, ${c.correct}, this)">${escHtml(c.label)}</button>`
+    ).join('');
+
+    container.innerHTML += `
+    <article class="step${n===1?' active':''}" id="step-${n}">
+      <div class="step-title">
+        <span class="badge">${n}</span>
+        <strong>${def.title}</strong>
+        <span class="tag">${def.tag}</span>
+      </div>
+      <div class="step-body">
+        <p>${def.desc}</p>
+        <div class="mc-label">💡 Choose the correct answer:</div>
+        <div class="mc-options" id="mc-options-${n}">${mcHtml}</div>
+        <div class="or-divider">or type it yourself</div>
+        <div class="input-row">
+          <input type="text" id="input-${n}" aria-label="Step ${n} answer" autocomplete="off" spellcheck="false"${n===15||n===16?' style="max-width:120px"':''}>
+          <button class="check" onclick="checkTyped(${n})">Check ✓</button>
+        </div>
+        <div class="feedback" id="fb-${n}"></div>
+        <div class="attempts-badge" id="att-${n}"></div>
+      </div>
+    </article>`;
+  });
+}
+
+// ── VALIDATION ───────────────────────────────────────────────────────────────
+
+function stripSpaces(text) {
+  let r="", inQ=false;
+  for (let ch of text.trim()) {
+    if (ch==='"'){inQ=!inQ;r+=ch;}
+    else if(inQ||!/\s/.test(ch)) r+=ch;
+  }
+  return r;
+}
+
+function isMeaningfulVar(name) {
+  return /^[A-Za-z_$][\w$]*$/.test(name) && !["String","double","int","class","public","static","void","final"].includes(name);
+}
+
+function getVarDecl(text, type) {
+  const m = text.match(new RegExp("^\\s*"+type+"\\s+([A-Za-z_$][\\w$]*)\\s*(=\\s*0(?:\\.0)?)?\\s*;\\s*$"));
+  return m ? m[1] : null;
+}
+
+function validate(n, text) {
+  const compact = stripSpaces(text);
+  let ok = false, codeLine = defaultLines[n];
+
+  if (n===1) ok = compact==="importjava.util.Scanner;";
+  if (n===2) ok = /^public\s+class\s+CircleArea\s*\{\s*$/.test(text);
+  if (n===3) ok = /^public\s+static\s+void\s+main\s*\(\s*String\s*\[\s*\]\s*args\s*\)\s*\{\s*$/.test(text);
+  if (n===4) {
+    const m = text.match(/^\s*Scanner\s+([A-Za-z_$][\w$]*)\s*=\s*new\s+Scanner\s*\(\s*System\.in\s*\)\s*;\s*$/);
+    ok=!!m; if(ok){state.scanner=m[1]; codeLine="        Scanner "+state.scanner+" = new Scanner(System.in);";}
+  }
+  if (n===5) {
+    const v=getVarDecl(text,"String"); ok=!!v&&isMeaningfulVar(v);
+    if(ok){state.name=v; codeLine="        String "+state.name+";";}
+  }
+  if (n===6) ok=/^final\s+double\s+PI\s*=\s*3\.1416\s*;\s*$/.test(text);
+  if (n===7) {
+    const m=text.match(/^\s*double\s+([A-Za-z_$][\w$]*)\s*=\s*0(?:\.0)?\s*;\s*$/);
+    ok=!!m&&isMeaningfulVar(m[1]); if(ok){state.radius=m[1]; codeLine="        double "+state.radius+" = 0;";}
+  }
+  if (n===8) {
+    const v=getVarDecl(text,"double"); ok=!!v&&isMeaningfulVar(v)&&v!==state.radius;
+    if(ok){state.area=v; codeLine="        double "+state.area+";";}
+  }
+  if (n===9) { ok=/^\s*System\.out\.(print|println)\s*\(\s*".*name.*"\s*\)\s*;\s*$/i.test(text); if(ok) codeLine="        "+text; }
+  if (n===10){ const p=new RegExp("^\\s*"+state.name+"\\s*=\\s*"+state.scanner+"\\.nextLine\\s*\\(\\s*\\)\\s*;\\s*$"); ok=p.test(text); if(ok) codeLine="        "+state.name+" = "+state.scanner+".nextLine();"; }
+  if (n===11){ ok=/^\s*System\.out\.(print|println)\s*\(\s*".*radius.*"\s*\)\s*;\s*$/i.test(text); if(ok) codeLine="        "+text; }
+  if (n===12){ const p=new RegExp("^\\s*"+state.radius+"\\s*=\\s*"+state.scanner+"\\.nextDouble\\s*\\(\\s*\\)\\s*;\\s*$"); ok=p.test(text); if(ok) codeLine="        "+state.radius+" = "+state.scanner+".nextDouble();"; }
+  if (n===13){
+    const p1=new RegExp("^\\s*"+state.area+"\\s*=\\s*PI\\s*\\*\\s*"+state.radius+"\\s*\\*\\s*"+state.radius+"\\s*;\\s*$");
+    const p2=new RegExp("^\\s*"+state.area+"\\s*=\\s*"+state.radius+"\\s*\\*\\s*"+state.radius+"\\s*\\*\\s*PI\\s*;\\s*$");
+    ok=p1.test(text)||p2.test(text); if(ok) codeLine="        "+state.area+" = PI * "+state.radius+" * "+state.radius+";";
+  }
+  if (n===14){
+    const hasPrint=/^\s*System\.out\.println\s*\(/.test(text);
+    const hasName=new RegExp("\\b"+state.name+"\\b").test(text);
+    const hasArea=new RegExp("\\b"+state.area+"\\b").test(text);
+    ok=hasPrint&&hasName&&hasArea&&/;\s*$/.test(text); if(ok) codeLine="        "+text;
+  }
+  if (n===15||n===16){ ok=text.trim()==="}"; codeLine=n===15?"    }":"}"; }
+
+  return {ok, codeLine};
+}
+
+// ── INTERACTIONS ─────────────────────────────────────────────────────────────
+
+function selectChoice(n, ci, correct, btn) {
+  if (!state.attempts[n]) state.attempts[n] = 0;
+  state.attempts[n]++;
+  updateAttempts(n);
+
+  if (correct) {
+    btn.classList.add('selected-right');
+    disableChoices(n);
+    // use the default line for this step (choice-based steps use fixed answers)
+    const {codeLine} = validate(n, stepDefs[n-1].choices.find(c=>c.correct).label);
+    // for flexible steps, use validated codeLine; for fixed, just use defaultLines
+    showFeedback(n, true);
+    completeStep(n, defaultLines[n]);
+  } else {
+    btn.classList.add('selected-wrong');
+    btn.disabled = true;
+    showFeedback(n, false);
+  }
+}
+
+function checkTyped(n) {
+  const input = document.getElementById("input-"+n);
+  const text = input.value.trim();
+  if (!text) return;
+  if (!state.attempts[n]) state.attempts[n] = 0;
+  state.attempts[n]++;
+  updateAttempts(n);
+
+  const {ok, codeLine} = validate(n, text);
+  showFeedback(n, ok);
+  if (ok) {
+    disableChoices(n);
+    input.disabled = true;
+    completeStep(n, codeLine);
+  }
+}
+
+function disableChoices(n) {
+  const opts = document.getElementById("mc-options-"+n);
+  if (opts) opts.querySelectorAll('.mc-btn').forEach(b => b.disabled = true);
+}
+
+function updateAttempts(n) {
+  const att = state.attempts[n] || 0;
+  const el = document.getElementById("att-"+n);
+  if (el) el.textContent = att > 1 ? `Attempts: ${att}` : '';
+}
+
+function showFeedback(n, ok) {
+  const fb = document.getElementById("fb-"+n);
+  fb.className = "feedback show " + (ok ? "good" : "bad");
+  fb.textContent = ok ? messages[n][0] : messages[n][1];
+  document.getElementById("live").textContent = fb.textContent;
+}
+
+function completeStep(n, codeLine) {
+  state.lines[n] = codeLine;
+  const stepEl = document.getElementById("step-"+n);
+  stepEl.classList.remove("active");
+  stepEl.classList.add("done");
+
+  if (n < TOTAL) {
+    state.current = n + 1;
+    const next = document.getElementById("step-"+state.current);
+    next.classList.add("active");
+    next.scrollIntoView({behavior:"smooth", block:"center"});
+    const inp = document.getElementById("input-"+state.current);
+    if (inp) inp.focus();
+  } else {
+    document.getElementById("complete").classList.add("show");
+    setTimeout(launchCelebration, 400);
+  }
+  renderCode();
+  updateProgress();
+}
+
+function goBack() {
+  if (state.current <= 1) return;
+  const cur = document.getElementById("step-"+state.current);
+  cur.classList.remove("active");
+  const prev = state.current - 1;
+  state.lines[prev] = "";
+  const prevEl = document.getElementById("step-"+prev);
+  prevEl.classList.remove("done");
+  prevEl.classList.add("active");
+
+  // re-enable choices
+  const opts = document.getElementById("mc-options-"+prev);
+  if (opts) opts.querySelectorAll('.mc-btn').forEach(b => { b.disabled=false; b.classList.remove('selected-right','selected-wrong'); });
+
+  const inp = document.getElementById("input-"+prev);
+  if (inp) { inp.disabled = false; inp.value = ""; inp.focus(); }
+  document.getElementById("fb-"+prev).className = "feedback";
+  if (document.getElementById("att-"+prev)) document.getElementById("att-"+prev).textContent = "";
+  state.attempts[prev] = 0;
+  state.current = prev;
+  document.getElementById("complete").classList.remove("show");
+  renderCode();
+  updateProgress();
+}
+
+// ── RENDER CODE ──────────────────────────────────────────────────────────────
+
+function renderCode() {
+  const code = document.getElementById("code");
+  const out = [];
+  for (let i=1;i<=TOTAL;i++) if(state.lines[i]) out.push(escHtml(state.lines[i]));
+  code.innerHTML = out.length
+    ? out.map((line,i) => `<div class="code-line${i===out.length-1?' code-new':''}">${colorCode(line)}</div>`).join("")
+    : '<div class="code-comment">// Your Java code appears here as you complete each step.</div>';
+}
+
+function colorCode(line) {
+  return line
+    .replace(/\b(import|public|class|static|void|final|new)\b/g,'<span class="code-key">$1</span>')
+    .replace(/\b(String|Scanner|double)\b/g,'<span class="code-type">$1</span>')
+    .replace(/(&quot;.*?&quot;)/g,'<span class="code-string">$1</span>');
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+function updateProgress() {
+  let done=0;
+  for(let i=1;i<=TOTAL;i++) if(state.lines[i]) done++;
+  const pct = Math.round((done/TOTAL)*100);
+  document.getElementById("bar").style.width = pct+"%";
+  document.getElementById("progressPct").textContent = pct+"%";
+  const labels={1:"Import Scanner",2:"Create Class",3:"Main Method",4:"Scanner Object",5:"Declare Name",6:"Declare PI",7:"Declare Radius",8:"Declare Area",9:"Prompt Name",10:"Read Name",11:"Prompt Radius",12:"Read Radius",13:"Calculate Area",14:"Display Result",15:"Close Main",16:"Close Class"};
+  document.getElementById("progressText").textContent =
+    done===TOTAL ? "🎉 All 16 steps complete!" : "Step "+state.current+" of "+TOTAL+" — "+(labels[state.current]||"");
+  document.getElementById("progress").setAttribute("aria-valuenow", pct);
+}
+
+// Enter key on text input
+document.addEventListener("keydown", e => {
+  if (e.key==="Enter" && e.target.tagName==="INPUT") {
+    const n=parseInt(e.target.id.replace("input-",""));
+    if (!isNaN(n)) checkTyped(n);
+  }
+});
+
+// ── CELEBRATION ───────────────────────────────────────────────────────────────
+
+function launchCelebration() {
+  document.getElementById("celebration").classList.add("show");
+  startConfetti();
+  setTimeout(stopConfetti, 5000);
+}
+
+function closeCelebration() {
+  document.getElementById("celebration").classList.remove("show");
+  stopConfetti();
+  document.getElementById("complete").scrollIntoView({behavior:"smooth"});
+}
+
+// Confetti
+let confettiAnim = null;
+const COLORS = ["#2563eb","#7c3aed","#f59e0b","#16a34a","#ef4444","#ec4899","#06b6d4"];
+const particles = [];
+
+function startConfetti() {
+  const canvas = document.getElementById("confetti-canvas");
+  const ctx = canvas.getContext("2d");
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  for (let i=0;i<180;i++) {
+    particles.push({
+      x: Math.random()*canvas.width,
+      y: Math.random()*canvas.height - canvas.height,
+      w: Math.random()*10+5,
+      h: Math.random()*6+3,
+      color: COLORS[Math.floor(Math.random()*COLORS.length)],
+      vx: (Math.random()-0.5)*4,
+      vy: Math.random()*4+2,
+      angle: Math.random()*360,
+      spin: (Math.random()-0.5)*6
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p => {
+      ctx.save();
+      ctx.translate(p.x+p.w/2, p.y+p.h/2);
+      ctx.rotate(p.angle*Math.PI/180);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+      ctx.restore();
+      p.x += p.vx; p.y += p.vy; p.angle += p.spin;
+      if (p.y > canvas.height+20) { p.y=-20; p.x=Math.random()*canvas.width; }
+    });
+    confettiAnim = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function stopConfetti() {
+  if (confettiAnim) { cancelAnimationFrame(confettiAnim); confettiAnim=null; }
+  const canvas = document.getElementById("confetti-canvas");
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  particles.length = 0;
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+
+buildSteps();
+renderCode();
+updateProgress();
+</script>
+</body>
+</html>
