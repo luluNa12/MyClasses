@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CIT 130 HW3 - Dog Breed Selector Interactive</title>
+<style>
+:root{
+  --bg:#f4f7fb;
+  --card:#ffffff;
+  --ink:#172033;
+  --muted:#586174;
+  --line:#d9e2ef;
+  --blue:#2563eb;
+  --blue-dark:#1e40af;
+  --green:#0f766e;
+  --green-bg:#e6fffb;
+  --gold:#f59e0b;
+  --gold-bg:#fff7db;
+  --red:#b91c1c;
+  --red-bg:#fee2e2;
+  --code:#0f172a;
+  --codeTop:#1e293b;
+  --focus:#f59e0b;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Segoe UI,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  line-height:1.5;
+}
+.skip-link{
+  position:absolute;
+  top:-100px;
+  left:12px;
+  background:var(--blue);
+  color:white;
+  padding:10px 14px;
+  border-radius:8px;
+  z-index:9999;
+}
+.skip-link:focus{top:12px}
+header{
+  background:white;
+  border-bottom:1px solid var(--line);
+  padding:16px 22px;
+}
+.header-wrap{
+  max-width:1180px;
+  margin:auto;
+  display:flex;
+  justify-content:space-between;
+  gap:18px;
+  align-items:center;
+}
+.badge{
+  display:inline-block;
+  background:#eaf1ff;
+  color:var(--blue-dark);
+  border:1px solid #bfd3ff;
+  border-radius:999px;
+  padding:4px 10px;
+  font-weight:700;
+  font-size:.78rem;
+  margin-bottom:6px;
+}
+h1{margin:0;font-size:clamp(1.3rem,2.3vw,1.9rem)}
+.subtitle{margin:.2rem 0 0;color:var(--muted)}
+.progress-text{text-align:right;color:var(--green);font-weight:800;margin-bottom:6px}
+.progress-bar{height:12px;width:230px;background:#e5e7eb;border-radius:999px;overflow:hidden}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--green),var(--blue))}
+main{max-width:1180px;margin:18px auto;padding:0 16px 30px}
+.rules{
+  background:var(--gold-bg);
+  border:1px solid #f7d979;
+  border-left:7px solid var(--gold);
+  border-radius:14px;
+  padding:12px 15px;
+  margin-bottom:16px;
+}
+.layout{
+  display:grid;
+  grid-template-columns:minmax(360px,1fr) minmax(360px,.95fr);
+  gap:18px;
+  align-items:start;
+}
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr}
+  .preview-card{position:static!important}
+}
+.card,.preview-card{
+  background:white;
+  border:1px solid var(--line);
+  border-radius:14px;
+  box-shadow:0 10px 24px rgba(15,23,42,.12);
+  overflow:hidden;
+}
+.card-top,.preview-top{
+  padding:13px 16px;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+}
+.card-top h2,.preview-top h2{margin:0;font-size:1rem}
+.step-body{padding:16px}
+.step-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.step-num{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  background:var(--blue);
+  color:white;
+  display:grid;
+  place-items:center;
+  font-weight:900;
+  flex-shrink:0;
+}
+.step-title{font-weight:900;font-size:1.05rem}
+.tag{
+  margin-left:auto;
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:3px 9px;
+  color:var(--muted);
+  font-size:.72rem;
+  font-weight:800;
+}
+.instruction{color:var(--muted);margin:0 0 12px}
+.prof{
+  background:#f1f5f9;
+  border-left:4px solid var(--blue);
+  border-radius:8px;
+  padding:9px 10px;
+  margin-bottom:12px;
+  font-size:.9rem;
+}
+.requirements{
+  background:#fbfdff;
+  border:1px dashed #cbd5e1;
+  border-radius:10px;
+  padding:10px 12px;
+  margin-bottom:12px;
+  color:#334155;
+}
+.requirements ul{margin:6px 0 0 20px;padding:0}
+label{display:block;font-weight:800;margin-bottom:6px}
+textarea{
+  width:100%;
+  min-height:180px;
+  resize:vertical;
+  font-family:Consolas,'Courier New',monospace;
+  font-size:.95rem;
+  line-height:1.45;
+  padding:10px;
+  border:1px solid #cbd5e1;
+  border-radius:10px;
+}
+textarea:focus,button:focus{outline:3px solid var(--focus);outline-offset:2px}
+.actions,.nav-actions,.preview-buttons{display:flex;flex-wrap:wrap;gap:8px}
+.actions{margin-top:10px}
+.nav-actions{
+  padding:14px 16px;
+  border-top:1px solid var(--line);
+  background:#f8fafc;
+  justify-content:space-between;
+  align-items:center;
+}
+button{
+  border:0;
+  border-radius:10px;
+  padding:9px 13px;
+  font-weight:900;
+  cursor:pointer;
+}
+.primary{background:var(--blue);color:white}
+.secondary{background:#e2e8f0;color:#172033}
+.success{background:var(--green);color:white}
+.danger{background:var(--red-bg);color:var(--red)}
+button:disabled{opacity:.5;cursor:not-allowed}
+.feedback{
+  display:none;
+  margin-top:10px;
+  padding:9px 10px;
+  border-radius:8px;
+  font-size:.9rem;
+}
+.feedback.show{display:block}
+.feedback.ok{background:var(--green-bg);border:1px solid #99f6e4;color:#115e59}
+.feedback.err{background:var(--red-bg);border:1px solid #fecaca;color:var(--red)}
+.preview-card{position:sticky;top:14px}
+.preview-top{background:#f8fafc}
+.code-window{background:var(--code);color:#dbeafe;min-height:560px;overflow:auto}
+.filebar{
+  background:var(--codeTop);
+  color:#cbd5e1;
+  padding:10px 14px;
+  font-family:Consolas,'Courier New',monospace;
+  font-size:.9rem;
+}
+pre{
+  margin:0;
+  padding:14px;
+  white-space:pre-wrap;
+  font-family:Consolas,'Courier New',monospace;
+  font-size:.9rem;
+  line-height:1.55;
+}
+.empty-code{color:#94a3b8}
+#status{font-weight:800;color:var(--muted)}
+.small{font-size:.84rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<a href="#mainContent" class="skip-link">Skip to main content</a>
+
+<header>
+  <div class="header-wrap">
+    <div>
+      <div class="badge">CIT 130 · Chapter 3 · Selections</div>
+      <h1>Dog Breed Selector Code Writer</h1>
+      <p class="subtitle">One question at a time. No starter solution is shown. Check validates each step.</p>
+    </div>
+    <div>
+      <div class="progress-text" id="progressText">0 of 15 complete</div>
+      <div class="progress-bar" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+  </div>
+</header>
+
+<main id="mainContent">
+  <section class="rules" aria-label="Assignment rules">
+    <strong>Coding Tip:</strong>
+    One box per step. One statement per line. Declare one variable per line. Use meaningful camelCase names. Use if / else if / else. No loops, arrays, switch, break, exit, return, or scanner.close().
+  </section>
+
+  <div class="layout">
+    <section class="card" aria-label="Current coding step">
+      <div class="card-top">
+        <h2 id="stepHeading">Step 1 of 15</h2>
+        <span class="small">Auto-save is on</span>
+      </div>
+
+      <div class="step-body">
+        <div class="step-header">
+          <div class="step-num" id="stepNum">1</div>
+          <div class="step-title" id="stepTitle">Import Scanner</div>
+          <div class="tag" id="stepTag">IMPORT</div>
+        </div>
+
+        <p class="instruction" id="instruction"></p>
+        <div class="requirements" id="requirements"></div>
+        <div class="prof"><strong>Coding Tip:</strong> <span id="professor"></span></div>
+
+        <label for="answerBox">Write your Java code for this step</label>
+        <textarea id="answerBox" spellcheck="false" placeholder="Type your code here. No starter code is provided."></textarea>
+
+        <div class="actions">
+          <button class="primary" id="checkBtn">Check</button>
+          <button class="success" id="doneBtn" disabled>Mark Done</button>
+          <button class="secondary" id="clearBtn">Clear This Step</button>
+        </div>
+
+        <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
+      </div>
+
+      <div class="nav-actions">
+        <button class="secondary" id="prevBtn">← Previous</button>
+        <div id="status" role="status" aria-live="polite"></div>
+        <button class="primary" id="nextBtn">Next →</button>
+      </div>
+    </section>
+
+    <aside class="preview-card" aria-label="Live code preview">
+      <div class="preview-top">
+        <h2>Live Code Preview</h2><span class="small">Only correct checked steps appear here</span>
+        <div class="preview-buttons">
+          <button class="success" id="copyBtn">Copy Full Program</button>
+          <button class="danger" id="resetBtn">Reset</button>
+        </div>
+      </div>
+      <div class="code-window">
+        <div class="filebar">LastNameFirstNameCit130Hw3Ch3.java</div>
+        <pre id="codePreview"><span class="empty-code">Correct checked code will appear here.</span></pre>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<script>
+const storageKey = "cit130_hw3_dog_breed_validated_v6_preview_after_check";
+
+const steps = [
+  {
+    title:"Import Scanner",
+    tag:"IMPORT",
+    instruction:"Write the import statement needed so the program can read keyboard input.",
+    requirements:["Use the Scanner import statement.","Place this before the class."],
+    professor:"Scanner is Java's way of saying, “Fine, I will listen to the user.”",
+    validate: code => has(code,/import\s+java\.util\.Scanner\s*;/) && noBanned(code)
+  },
+  {
+    title:"Create the Class",
+    tag:"CLASS",
+    instruction:"Create the public class using the required class name format. Open the class body.",
+    requirements:["Use public class.","Use the required class name format: LastNameFirstNameCit130Hw3Ch3.","Open the class body with a brace."],
+    professor:"Class names are not nicknames. Use the required format and no spaces.",
+    validate: code => has(code,/public\s+class\s+\w+Cit130Hw3Ch3\s*\{/) && noBanned(code)
+  },
+  {
+    title:"Create the Main Method",
+    tag:"METHOD",
+    instruction:"Create the main method inside the class. Open the method body.",
+    requirements:["Use the standard Java main method header.","Open the method body with a brace."],
+    professor:"The main method is the front door of your program. No front door, no party.",
+    validate: code => has(code,/public\s+static\s+void\s+main\s*\(\s*String\s*\[\]\s*args\s*\)\s*\{/) && noBanned(code)
+  },
+  {
+    title:"Create Scanner Object",
+    tag:"SCANNER",
+    instruction:"Create the Scanner object inside main.",
+    requirements:["Create a Scanner object for keyboard input.","Use a meaningful object name."],
+    professor:"Create the input tool. Java will not magically read your mind.",
+    validate: code => has(code,/Scanner\s+input\s*=\s*new\s+Scanner\s*\(\s*System\.in\s*\)\s*;/) && noBanned(code)
+  },
+  {
+    title:"Declare Variables",
+    tag:"VARIABLES",
+    instruction:"Declare and initialize the variables needed for the program.",
+    requirements:[
+      "Include variables for: user name, breed choice, breed name, size, personality, number of dogs, and color.",
+      "Declare one variable per line.",
+      "Do not declare multiple variables on one line separated by commas.",
+      "Use meaningful camelCase variable names."
+    ],
+    professor:"Declare one variable per line. Variables like personal space.",
+    validate: code =>
+      has(code,/String\s+userName\s*;/) &&
+      has(code,/int\s+breedChoice\s*;/) &&
+      has(code,/String\s+breedName\s*=\s*""\s*;/) &&
+      has(code,/String\s+size\s*=\s*""\s*;/) &&
+      has(code,/String\s+personality\s*=\s*""\s*;/) &&
+      has(code,/int\s+numOfBreeds\s*=\s*0\s*;/) &&
+      has(code,/String\s+color\s*=\s*""\s*;/) &&
+      !hasMultipleDeclarationsOnOneLine(code) && noBanned(code)
+  },
+  {
+    title:"Ask for User Name",
+    tag:"INPUT",
+    instruction:"Ask the user to enter their name and store the value.",
+    requirements:["Display a prompt for the user's name.","Store the input in the user name variable.","Use input that can accept spaces."],
+    professor:"Names can have spaces. Plan your input statement carefully.",
+    validate: code => has(code,/System\.out\.print/) && has(code,/userName\s*=\s*input\.nextLine\s*\(\s*\)\s*;/) && noBanned(code)
+  },
+  {
+    title:"Display Dog Breed Menu",
+    tag:"OUTPUT",
+    instruction:"Display the menu with the three dog breed options: 1 - Labrador, 2 - German Shepherd, and 3 - Bulldog.",
+    requirements:["Display a menu title.","Display option 1 - Labrador.","Display option 2 - German Shepherd.","Display option 3 - Bulldog."],
+    professor:"A menu without clear choices is just a mysterious restaurant.",
+    validate: code => 
+      has(code,/System\.out\.println/) &&
+      textHas(code,"Select a Dog Breed") &&
+      textHas(code,"1 - Labrador") &&
+      textHas(code,"2 - German Shepherd") &&
+      textHas(code,"3 - Bulldog") &&
+      noBanned(code)
+  },
+  {
+    title:"Ask for Breed Choice",
+    tag:"INPUT",
+    instruction:"Ask the user to enter the breed choice and store the number.",
+    requirements:["Display a prompt for the breed choice.","Read a numeric value.","Store the value in the breed choice variable."],
+    professor:"The user is choosing a number. Store it in a variable that makes sense.",
+    validate: code => has(code,/System\.out\.print/) && has(code,/breedChoice\s*=\s*input\.nextInt\s*\(\s*\)\s*;/) && noBanned(code)
+  },
+  {
+    title:"Write the Labrador Branch",
+    tag:"IF",
+    instruction:"Write the first selection branch for the Labrador choice.",
+    requirements:[
+      "Check whether the user selected option 1.",
+      "Clear the input buffer before reading a line of text.",
+      "Ask for the breed name.",
+      "Ask for the number of dogs.",
+      "Ask for the breed color.",
+      "Assign the Labrador size and personality."
+    ],
+    professor:"Think: if the first menu option is selected, what should happen?",
+    validate: code =>
+      has(code,/if\s*\(\s*breedChoice\s*==\s*1\s*\)\s*\{/) &&
+      has(code,/input\.nextLine\s*\(\s*\)\s*;/) &&
+      textHas(code,"Enter breed name") &&
+      has(code,/breedName\s*=\s*input\.nextLine\s*\(\s*\)\s*;/) &&
+      (textHas(code,"Enter number of dogs") || textHas(code,"Enter number of breeds")) &&
+      has(code,/numOfBreeds\s*=\s*input\.nextInt\s*\(\s*\)\s*;/) &&
+      textHas(code,"Enter breed color") &&
+      has(code,/color\s*=\s*input\.nextLine\s*\(\s*\)\s*;/) &&
+      has(code,/size\s*=\s*"Large"\s*;/) &&
+      has(code,/personality\s*=\s*"Friendly"\s*;/) &&
+      noBanned(code)
+  },
+  {
+    title:"Write the German Shepherd Branch",
+    tag:"ELSE IF",
+    instruction:"Write the second selection branch for the German Shepherd choice.",
+    requirements:[
+      "Check whether the user selected option 2.",
+      "Assign the breed name.",
+      "Ask for the breed size.",
+      "Ask for the number of dogs.",
+      "Ask for the breed color.",
+      "Assign the personality."
+    ],
+    professor:"This branch runs only if the first branch does not.",
+    validate: code =>
+      has(code,/else\s+if\s*\(\s*breedChoice\s*==\s*2\s*\)\s*\{/) &&
+      has(code,/breedName\s*=\s*"German Shepherd"\s*;/) &&
+      has(code,/input\.nextLine\s*\(\s*\)\s*;/) &&
+      textHas(code,"Enter breed size") &&
+      has(code,/size\s*=\s*input\.nextLine\s*\(\s*\)\s*;/) &&
+      (textHas(code,"Enter number of dogs") || textHas(code,"Enter number of breeds")) &&
+      has(code,/numOfBreeds\s*=\s*input\.nextInt\s*\(\s*\)\s*;/) &&
+      textHas(code,"Enter breed color") &&
+      has(code,/color\s*=\s*input\.nextLine\s*\(\s*\)\s*;/) &&
+      has(code,/personality\s*=\s*"Loyal"\s*;/) &&
+      noBanned(code)
+  },
+  {
+    title:"Write the Bulldog Branch",
+    tag:"ELSE IF",
+    instruction:"Write the third selection branch for the Bulldog choice.",
+    requirements:[
+      "Check whether the user selected option 3.",
+      "Assign the breed name.",
+      "Assign the breed size.",
+      "Ask for the breed personality.",
+      "Read the personality using the next input method.",
+      "Ask for the number of breeds.",
+      "Read the number of breeds.",
+      "Clear the input buffer after reading the number.",
+      "Ask for the breed color.",
+      "Read the color using the full-line input method."
+    ],
+    professor:"Bulldog branch: calm dog, serious Java.",
+    validate: code =>
+      has(code,/else\s+if\s*\(\s*breedChoice\s*==\s*3\s*\)\s*\{/) &&
+      has(code,/breedName\s*=\s*"Bulldog"\s*;/) &&
+      has(code,/size\s*=\s*"Medium"\s*;/) &&
+      textHas(code,"Enter breed personality") &&
+      has(code,/personality\s*=\s*input\.next\s*\(\s*\)\s*;/) &&
+      textHas(code,"Enter number of breeds") &&
+      has(code,/numOfBreeds\s*=\s*input\.nextInt\s*\(\s*\)\s*;/) &&
+      has(code,/input\.nextLine\s*\(\s*\)\s*;/) &&
+      textHas(code,"Enter breed color") &&
+      has(code,/color\s*=\s*input\.nextLine\s*\(\s*\)\s*;/) &&
+      noBanned(code)
+  },
+  {
+    title:"Handle Invalid Choice",
+    tag:"ELSE",
+    instruction:"Write the final branch for any choice that is not one of the three valid menu options.",
+    requirements:["Use the final else branch.","Assign an invalid selection message to the breed name variable."],
+    professor:"Always plan for strange input. Users are creative.",
+    validate: code => has(code,/else\s*\{/) && has(code,/breedName\s*=\s*"Invalid Breed Selection"\s*;/) && noBanned(code)
+  },
+  {
+    title:"Display Summary Header",
+    tag:"OUTPUT",
+    instruction:"Display the dog breed summary heading, user name, and breed.",
+    requirements:["Print a blank line.","Print the dog breed summary heading.","Print the user name.","Print the breed."],
+    professor:"Readable output makes everyone happier.",
+    validate: code =>
+      has(code,/System\.out\.println/) &&
+      textHas(code,"Dog Breed Summary") &&
+      has(code,/userName/) &&
+      has(code,/breedName/) &&
+      noBanned(code)
+  },
+  {
+    title:"Display Valid Dog Details",
+    tag:"IF OUTPUT",
+    instruction:"Display the dog details only when the user selected a valid breed choice.",
+    requirements:[
+      "Use a condition that checks whether the breed choice is between 1 and 3.",
+      "Display the number of dogs.",
+      "Display the size.",
+      "Display the color.",
+      "Display the personality."
+    ],
+    professor:"This is the velvet rope. Only valid choices get inside the summary details.",
+    validate: code =>
+      has(code,/if\s*\(\s*breedChoice\s*>=\s*1\s*&&\s*breedChoice\s*<=\s*3\s*\)\s*\{/) &&
+      has(code,/System\.out\.println/) &&
+      has(code,/numOfBreeds/) &&
+      has(code,/size/) &&
+      has(code,/color/) &&
+      has(code,/personality/) &&
+      noBanned(code)
+  },
+  {
+    title:"Ending Message and Closing Braces",
+    tag:"END",
+    instruction:"Display the ending message and close the main method and class.",
+    requirements:["Print a thank-you ending message.","Close the main method.","Close the class."],
+    professor:"Brace yourself. Literally.",
+    validate: code =>
+      textHas(code,"Thank you for exploring dog breeds") &&
+      ((code.match(/\}/g)||[]).length >= 2) &&
+      noBanned(code)
+  }
+];
+
+let currentStep = 0;
+let answers = Array(steps.length).fill("");
+let correct = Array(steps.length).fill(false);
+let done = Array(steps.length).fill(false);
+
+const stepHeading = document.getElementById("stepHeading");
+const stepNum = document.getElementById("stepNum");
+const stepTitle = document.getElementById("stepTitle");
+const stepTag = document.getElementById("stepTag");
+const instruction = document.getElementById("instruction");
+const professor = document.getElementById("professor");
+const requirements = document.getElementById("requirements");
+const answerBox = document.getElementById("answerBox");
+const feedback = document.getElementById("feedback");
+const doneBtn = document.getElementById("doneBtn");
+
+function has(code, pattern){ return pattern.test(code); }
+function textHas(code, text){ return code.toLowerCase().includes(text.toLowerCase()); }
+function noBanned(code){
+  return !/\b(break|return|System\.exit|switch|for\s*\(|while\s*\(|scanner\.close|input\.close)\b/i.test(code);
+}
+function hasMultipleDeclarationsOnOneLine(code){
+  return code.split(/\n/).some(line => {
+    const clean = line.replace(/\/\/.*$/,"").trim();
+    return /^(String|int|double|boolean|char|Scanner)\s+/.test(clean) && clean.includes(",");
+  });
+}
+
+function loadSaved(){
+  const saved = localStorage.getItem(storageKey);
+  if(saved){
+    try{
+      const data = JSON.parse(saved);
+      if(Array.isArray(data.answers)) answers = data.answers;
+      if(Array.isArray(data.correct)) correct = data.correct;
+      if(Array.isArray(data.done)) done = data.done;
+      if(Number.isInteger(data.currentStep)) currentStep = data.currentStep;
+    }catch(e){}
+  }
+}
+function save(){
+  localStorage.setItem(storageKey, JSON.stringify({answers, correct, done, currentStep}));
+}
+function render(){
+  const step = steps[currentStep];
+  stepHeading.textContent = "Step " + (currentStep + 1) + " of " + steps.length;
+  stepNum.textContent = done[currentStep] ? "✓" : currentStep + 1;
+  stepTitle.textContent = step.title;
+  stepTag.textContent = step.tag;
+  instruction.textContent = step.instruction;
+  professor.textContent = step.professor;
+  requirements.innerHTML = "<strong>This step should include:</strong><ul>" + step.requirements.map(item => "<li>" + item + "</li>").join("") + "</ul>";
+  answerBox.value = answers[currentStep];
+  feedback.className = "feedback";
+  feedback.textContent = "";
+  doneBtn.disabled = !correct[currentStep];
+  document.getElementById("prevBtn").disabled = currentStep === 0;
+  document.getElementById("nextBtn").disabled = currentStep === steps.length - 1;
+  updateProgress();
+  updatePreview();
+  setTimeout(() => answerBox.focus(), 50);
+}
+function updateProgress(){
+  const count = correct.filter(Boolean).length;
+  document.getElementById("progressText").textContent = count + " of " + steps.length + " correct";
+  document.getElementById("progressFill").style.width = Math.round((count / steps.length) * 100) + "%";
+}
+function getFullProgram(){
+  return answers
+    .map((a, index) => correct[index] ? a.trim() : "")
+    .filter(Boolean)
+    .join("\n\n");
+}
+function updatePreview(){
+  const combined = getFullProgram();
+  const preview = document.getElementById("codePreview");
+  if(!combined){
+    preview.innerHTML = '<span class="empty-code">Correct checked code will appear here.</span>';
+  }else{
+    preview.textContent = combined;
+  }
+}
+function showFeedback(type, msg){
+  feedback.className = "feedback show " + type;
+  feedback.textContent = msg;
+}
+function validateCurrent(){
+  const code = answers[currentStep].trim();
+
+  if(!code){
+    correct[currentStep] = false;
+    done[currentStep] = false;
+    showFeedback("err", "Please enter code for this step before checking.");
+    save();
+    updatePreview();
+    return;
+  }
+
+  if(hasMultipleDeclarationsOnOneLine(code)){
+    correct[currentStep] = false;
+    done[currentStep] = false;
+    showFeedback("err", "Not correct yet. Declare only one variable per line.");
+    save();
+    updatePreview();
+    return;
+  }
+
+  if(!noBanned(code)){
+    correct[currentStep] = false;
+    done[currentStep] = false;
+    showFeedback("err", "Not correct yet. This assignment cannot use loops, switch, break, return, exit, or close the Scanner.");
+    save();
+    updatePreview();
+    return;
+  }
+
+  if(steps[currentStep].validate(code)){
+    correct[currentStep] = true;
+    showFeedback("ok", "Correct. This code has been added to the live preview. You may mark this step done.");
+  }else{
+    correct[currentStep] = false;
+    done[currentStep] = false;
+    showFeedback("err", "Not correct yet. Review each required item for this step and check spelling, capitalization, semicolons, and input method.");
+  }
+
+  doneBtn.disabled = !correct[currentStep];
+  save();
+  updateProgress();
+  updatePreview();
+}
+answerBox.addEventListener("input", () => {
+  answers[currentStep] = answerBox.value;
+  correct[currentStep] = false;
+  done[currentStep] = false;
+  doneBtn.disabled = true;
+  save();
+  updateProgress();
+  updatePreview();
+});
+document.getElementById("checkBtn").addEventListener("click", validateCurrent);
+doneBtn.addEventListener("click", () => {
+  if(correct[currentStep]){
+    done[currentStep] = true;
+    save();
+    showFeedback("ok", "Step marked done. You can still go back and edit it.");
+    updateProgress();
+  }
+});
+document.getElementById("clearBtn").addEventListener("click", () => {
+  if(confirm("Clear this step only?")){
+    answers[currentStep] = "";
+    correct[currentStep] = false;
+    done[currentStep] = false;
+    save();
+    render();
+  }
+});
+document.getElementById("prevBtn").addEventListener("click", () => {
+  if(currentStep > 0){
+    currentStep--;
+    save();
+    render();
+  }
+});
+document.getElementById("nextBtn").addEventListener("click", () => {
+  if(currentStep < steps.length - 1){
+    currentStep++;
+    save();
+    render();
+  }
+});
+document.getElementById("copyBtn").addEventListener("click", async () => {
+  const combined = getFullProgram();
+  if(!combined){
+    document.getElementById("status").textContent = "No correct checked code to copy yet.";
+    return;
+  }
+  try{
+    await navigator.clipboard.writeText(combined);
+    document.getElementById("status").textContent = "Full program copied.";
+  }catch(e){
+    document.getElementById("status").textContent = "Copy did not work. Select the preview and copy manually.";
+  }
+});
+document.getElementById("resetBtn").addEventListener("click", () => {
+  if(confirm("Reset all work for this activity?")){
+    localStorage.removeItem(storageKey);
+    currentStep = 0;
+    answers = Array(steps.length).fill("");
+    correct = Array(steps.length).fill(false);
+    done = Array(steps.length).fill(false);
+    render();
+  }
+});
+loadSaved();
+render();
+</script>
+</body>
+</html>
