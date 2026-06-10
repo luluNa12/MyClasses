@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CIT 180 Chapter 2 Flashcards</title>
+<style>
+:root{--p:#2563eb;--bg:#f8fafc;--t:#111827;--focus:#7c3aed;}
+body{font-family:Arial,sans-serif;background:var(--bg);color:var(--t);margin:0;padding:20px}
+.container{max-width:900px;margin:auto}
+h1{text-align:center;color:var(--p)}
+.progress{text-align:center;font-weight:bold;margin:10px}
+.card-wrap{perspective:1200px;height:500px}
+.card{height:100%;position:relative;transform-style:preserve-3d;transition:.7s}
+.card.flip{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;border:3px solid var(--p);border-radius:18px;background:white;padding:25px;display:flex;flex-direction:column;justify-content:center;align-items:center}
+.back{transform:rotateY(180deg);align-items:flex-start;background:#eef6ff}
+.icon{font-size:72px}
+button{padding:10px 16px;margin:4px;border:none;border-radius:8px;background:var(--p);color:white;font-weight:bold}
+button:focus-visible,.card-wrap:focus-visible{outline:4px solid var(--focus);outline-offset:4px}
+.controls{text-align:center;margin-top:15px}
+pre{white-space:pre-wrap;background:#111827;color:white;padding:10px;border-radius:8px;width:100%}
+.sr{position:absolute;left:-9999px}
+.reduce .card{transition:none}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>CIT 180 Chapter 2 SQL Flashcards</h1>
+<div id="progress" class="progress"></div>
+
+<div id="cardWrap" class="card-wrap" tabindex="0" aria-label="Interactive flashcard">
+<div id="card" class="card">
+<div class="face">
+<div id="icon" class="icon"></div>
+<h2 id="title"></h2>
+<p>Click, Enter, or Space to flip</p>
+</div>
+<div class="face back">
+<h2 id="btitle"></h2>
+<p id="desc"></p>
+<pre id="sql"></pre>
+</div>
+</div>
+</div>
+
+<div class="controls">
+<button onclick="prevCard()">Previous</button>
+<button onclick="flipCard()">Flip</button>
+<button onclick="nextCard()">Next</button>
+<button onclick="shuffleCards()">Shuffle</button>
+<button onclick="toggleMotion()">Reduce Motion</button>
+</div>
+
+<div id="live" class="sr" aria-live="polite"></div>
+</div>
+
+<script>
+const cards=[
+{i:"📋",t:"SELECT *",d:"Display all columns from a table.",s:"SELECT *\nFROM Customer;"},
+{i:"👤",t:"SELECT Columns",d:"Display specific columns only.",s:"SELECT FirstName, LastName\nFROM Customer;"},
+{i:"✨",t:"DISTINCT",d:"Remove duplicate rows.",s:"SELECT DISTINCT FirstName, LastName\nFROM Customer;"},
+{i:"🔍",t:"WHERE",d:"Filter records using a condition.",s:"SELECT *\nFROM Customer\nWHERE CustomerID=714;"},
+{i:"➕",t:"AND",d:"Both conditions must be true.",s:"WHERE City='Atmore' AND Country='USA';"},
+{i:"🔀",t:"OR",d:"Either condition can be true.",s:"WHERE City='Webster' OR City='Hartford';"},
+{i:"⬇️",t:"ORDER BY DESC",d:"Sort results descending.",s:"ORDER BY LastName DESC;"},
+{i:"🚫",t:"IS NULL",d:"Find missing values.",s:"WHERE Color IS NULL;"},
+{i:"🗄️",t:"Schema.Table",d:"Access tables from another schema.",s:"SELECT *\nFROM redcatd.simpliefiedSales;"},
+{i:"✏️",t:"INSERT UPDATE DELETE",d:"Modify data in a table.",s:"INSERT INTO...\nUPDATE...\nDELETE FROM..."}
+];
+let idx=0;
+function render(){
+let c=cards[idx];
+icon.textContent=c.i; title.textContent=c.t; btitle.textContent=c.t;
+desc.textContent=c.d; sql.textContent=c.s;
+progress.textContent=`Card ${idx+1} of ${cards.length}`;
+live.textContent=progress.textContent+" "+c.t;
+card.classList.remove('flip');
+}
+function flipCard(){card.classList.toggle('flip')}
+function nextCard(){idx=(idx+1)%cards.length;render()}
+function prevCard(){idx=(idx-1+cards.length)%cards.length;render()}
+function shuffleCards(){cards.sort(()=>Math.random()-0.5);idx=0;render()}
+function toggleMotion(){document.body.classList.toggle('reduce')}
+cardWrap.addEventListener('click',flipCard);
+document.addEventListener('keydown',e=>{
+if(e.key==='ArrowRight')nextCard();
+if(e.key==='ArrowLeft')prevCard();
+if((e.key==='Enter'||e.key===' ')&&document.activeElement===cardWrap){e.preventDefault();flipCard();}
+});
+render();
+</script>
+</body>
+</html>
