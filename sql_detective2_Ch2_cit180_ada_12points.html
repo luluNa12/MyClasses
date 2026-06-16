@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SQL Detective: Introduction to Data Extraction</title>
+  <style>
+    :root{
+      --navy:#0b1f3a;
+      --navy-2:#12365f;
+      --gold:#f4c542;
+      --gold-dark:#b88400;
+      --cream:#fffaf0;
+      --white:#ffffff;
+      --text:#07182f;
+      --muted:#4b617a;
+      --border:#b9c7d9;
+      --focus:#7c3aed;
+      --success-bg:#e8f7f1;
+      --success:#006b4f;
+      --error-bg:#fff0f3;
+      --error:#9f1239;
+      --hint-bg:#fff8db;
+      --hint:#684b00;
+      --choice-bg:#ffffff;
+      --choice-hover:#e9f2ff;
+    }
+
+    *{box-sizing:border-box;}
+
+    html{scroll-behavior:smooth;}
+
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:linear-gradient(135deg,#f8fbff 0%,#fff9e6 100%);
+      color:var(--text);
+      line-height:1.55;
+    }
+
+    .skip-link{
+      position:absolute;
+      top:-44px;
+      left:12px;
+      background:var(--navy);
+      color:#fff;
+      padding:10px 14px;
+      border-radius:8px;
+      z-index:9999;
+    }
+    .skip-link:focus{top:12px;outline:4px solid var(--gold);}
+
+    header{
+      background:var(--navy);
+      color:var(--white);
+      border-bottom:6px solid var(--gold);
+      padding:28px 16px;
+    }
+
+    .header-inner{
+      max-width:1100px;
+      margin:0 auto;
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:18px;
+      align-items:center;
+    }
+
+    h1{font-size:clamp(2rem,4vw,3.3rem);margin:0 0 8px;}
+    .subtitle{font-size:1.1rem;margin:0;max-width:780px;color:#e6eef8;}
+
+    .detective-badge{
+      width:140px;height:140px;
+      border-radius:50%;
+      background:var(--gold);
+      border:5px solid #fff;
+      display:grid;
+      place-items:center;
+      color:var(--navy);
+      font-weight:800;
+      text-align:center;
+      box-shadow:0 12px 28px rgba(0,0,0,.28);
+      animation:float 4s ease-in-out infinite;
+    }
+    .detective-badge span{font-size:3.2rem;display:block;line-height:1;}
+
+    main{
+      max-width:1100px;
+      margin:28px auto;
+      padding:0 16px 48px;
+    }
+
+    .panel{
+      background:var(--white);
+      border:2px solid #d7e2ef;
+      border-radius:22px;
+      box-shadow:0 12px 30px rgba(7,24,47,.09);
+      padding:26px;
+      margin-bottom:22px;
+    }
+
+    .intro-grid{
+      display:grid;
+      grid-template-columns:1.2fr .8fr;
+      gap:24px;
+      align-items:center;
+    }
+
+    .mini-lesson{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:12px;
+      margin-top:18px;
+    }
+
+    .mini-card{
+      border:2px solid #d7e2ef;
+      border-radius:16px;
+      padding:14px;
+      background:#f8fbff;
+      min-height:120px;
+    }
+    .mini-card strong{display:block;color:var(--navy);font-size:1.1rem;margin-bottom:6px;}
+    .mini-card .icon{font-size:2rem;display:block;margin-bottom:6px;}
+
+    .visual-wrap{
+      position:relative;
+      min-height:240px;
+      border-radius:20px;
+      background:linear-gradient(160deg,#fff7d6,#eaf4ff);
+      border:2px solid #d7e2ef;
+      overflow:hidden;
+      display:grid;
+      place-items:center;
+      padding:18px;
+    }
+
+    .person{
+      width:130px;height:180px;position:relative;
+      animation:float 4.5s ease-in-out infinite;
+    }
+    .head{width:72px;height:72px;border-radius:50%;background:#ffd6a5;margin:0 auto;border:4px solid var(--navy);}
+    .body{width:110px;height:88px;background:var(--navy-2);border-radius:24px 24px 10px 10px;margin:-2px auto 0;border:4px solid var(--navy);}
+    .lens{position:absolute;right:-34px;top:38px;width:72px;height:72px;border:10px solid #2f80ed;border-radius:50%;background:rgba(255,255,255,.35);}
+    .lens::after{content:"";position:absolute;width:54px;height:12px;background:#2f80ed;right:-40px;bottom:-18px;transform:rotate(45deg);border-radius:12px;}
+
+    .db-stack{position:absolute;left:22px;bottom:20px;width:120px;}
+    .db-layer{height:24px;border:3px solid var(--navy);background:#fff;border-radius:50%;margin-top:-8px;}
+    .db-layer:nth-child(1){background:var(--gold);}
+    .db-layer:nth-child(2){background:#dbeafe;}
+    .db-layer:nth-child(3){background:#e0f2fe;}
+
+    .progress-row{
+      display:grid;
+      grid-template-columns:auto 1fr auto;
+      gap:14px;
+      align-items:center;
+      margin-bottom:18px;
+    }
+
+    .score-pill{
+      background:var(--navy);
+      color:#fff;
+      padding:10px 14px;
+      border-radius:999px;
+      font-weight:800;
+      min-width:116px;
+      text-align:center;
+    }
+
+    .progress-shell{
+      height:22px;
+      border:3px solid var(--navy);
+      border-radius:999px;
+      overflow:hidden;
+      background:#fff;
+    }
+    .progress-fill{
+      height:100%;
+      width:0%;
+      background:linear-gradient(90deg,var(--gold),#ffe58a);
+      transition:width .35s ease;
+    }
+
+    .case-heading{
+      display:flex;
+      gap:14px;
+      align-items:center;
+      margin:4px 0 22px;
+    }
+    .case-icon{width:82px;height:82px;flex:0 0 auto;}
+    .case-number{display:inline-block;background:#e9f2ff;color:var(--navy);border:1px solid #a9cdfc;border-radius:999px;padding:5px 12px;font-weight:800;margin-bottom:5px;}
+    .case-title{font-size:1.6rem;margin:0;}
+
+    pre{
+      background:#0b1328;
+      color:#ffffff;
+      padding:20px;
+      border-left:12px solid var(--gold);
+      border-radius:14px;
+      overflow:auto;
+      font-size:1.08rem;
+      line-height:1.55;
+      white-space:pre-wrap;
+      margin:0 0 18px;
+    }
+
+    .question-text{font-size:1.16rem;font-weight:800;margin:18px 0 12px;}
+
+    .choices{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:12px;
+    }
+
+    .choice{
+      width:100%;
+      border:3px solid var(--navy);
+      background:var(--choice-bg);
+      color:var(--text);
+      font-size:1.05rem;
+      font-weight:800;
+      padding:17px 14px;
+      border-radius:14px;
+      min-height:74px;
+      cursor:pointer;
+      transition:transform .1s ease, background .2s ease, border-color .2s ease;
+    }
+    .choice:hover{background:var(--choice-hover);transform:translateY(-1px);}
+    .choice:focus-visible, button:focus-visible, .drag-token:focus-visible, .drop-slot:focus-visible{
+      outline:5px solid var(--focus);
+      outline-offset:3px;
+    }
+    .choice[aria-pressed="true"]{background:#dbeafe;border-color:#2f80ed;}
+    .choice.correct{background:var(--success-bg);border-color:var(--success);}
+    .choice.incorrect{background:var(--error-bg);border-color:#ff5c7a;}
+    .choice:disabled{cursor:not-allowed;opacity:.96;}
+
+    .feedback{
+      margin-top:18px;
+      padding:18px;
+      border-radius:14px;
+      border:3px solid transparent;
+      font-size:1.05rem;
+    }
+    .feedback.success{background:var(--success-bg);border-color:#00a676;color:#004b3a;}
+    .feedback.error{background:var(--error-bg);border-color:#ff5c7a;color:var(--error);}
+    .feedback.hint{background:var(--hint-bg);border-color:#ffd95c;color:var(--hint);}
+
+    .button-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px;}
+    .primary-btn,.secondary-btn{
+      border:none;
+      padding:14px 22px;
+      border-radius:13px;
+      font-size:1.05rem;
+      font-weight:800;
+      cursor:pointer;
+    }
+    .primary-btn{background:var(--navy);color:#fff;box-shadow:0 8px 16px rgba(11,31,58,.18);}
+    .primary-btn:hover{background:var(--navy-2);}
+    .secondary-btn{background:#fff;border:3px solid var(--navy);color:var(--navy);}
+    .secondary-btn:hover{background:#eef6ff;}
+    button[disabled]{opacity:.45;cursor:not-allowed;}
+
+    .drag-area{margin-top:18px;}
+    .token-bank,.drop-area{
+      border:3px dashed #8da6c5;
+      border-radius:16px;
+      padding:14px;
+      min-height:92px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      background:#f8fbff;
+      margin-bottom:16px;
+    }
+    .drop-area{background:#fffdf3;}
+    .drag-token,.drop-slot{
+      border:3px solid var(--navy);
+      background:#fff;
+      color:var(--navy);
+      border-radius:12px;
+      padding:12px 16px;
+      min-width:110px;
+      min-height:52px;
+      font-weight:900;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+    }
+    .drag-token{background:#e9f2ff;}
+    .drag-token.selected{outline:5px solid var(--focus);background:#f3e8ff;}
+    .drop-slot{background:#fff;border-style:dashed;}
+    .drop-slot.filled{background:#fff7d6;border-style:solid;}
+
+    .celebration-layer{
+      pointer-events:none;
+      position:fixed;
+      inset:0;
+      overflow:hidden;
+      z-index:1000;
+    }
+
+    .confetti-piece,.star-piece,.balloon-piece,.streamer-piece,.sparkle-piece{
+      position:absolute;
+      font-size:1.8rem;
+      animation:fall 1.7s ease-out forwards;
+    }
+    .balloon-piece{animation:rise 2.2s ease-out forwards;bottom:-40px;}
+    .sparkle-piece{animation:spark 1.2s ease-out forwards;}
+    .trophy-pop,.stamp-pop,.scroll-pop{
+      position:fixed;
+      left:50%;top:24%;transform:translate(-50%,-50%) scale(.6);
+      background:#fff;
+      border:5px solid var(--gold);
+      border-radius:22px;
+      padding:24px 34px;
+      color:var(--navy);
+      font-size:1.4rem;
+      font-weight:900;
+      text-align:center;
+      box-shadow:0 18px 40px rgba(0,0,0,.22);
+      animation:pop 1.5s ease-out forwards;
+    }
+    .stamp-pop{border-color:#2f80ed;transform:translate(-50%,-50%) rotate(-7deg) scale(.6);}
+    .scroll-pop{border-radius:10px;background:#fff8db;animation:dropScroll 1.8s ease-out forwards;}
+
+    .final-grid{
+      display:grid;
+      grid-template-columns:1fr .8fr;
+      gap:22px;
+      align-items:center;
+    }
+    .certificate{
+      border:6px double var(--gold-dark);
+      border-radius:20px;
+      padding:22px;
+      background:#fffaf0;
+      text-align:center;
+    }
+    .certificate h2{font-size:2rem;margin:.2rem 0;color:var(--navy);}
+    .rank{font-size:1.3rem;font-weight:900;color:var(--navy-2);}
+    .concept-list{columns:2;margin-top:10px;}
+
+    .sr-only{
+      position:absolute;
+      width:1px;height:1px;
+      padding:0;margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;border:0;
+    }
+
+    .hidden{display:none !important;}
+
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+    @keyframes fall{0%{transform:translateY(-70px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(540deg);opacity:0}}
+    @keyframes rise{0%{transform:translateY(0);opacity:1}100%{transform:translateY(-110vh);opacity:0}}
+    @keyframes spark{0%{transform:scale(.2);opacity:0}40%{opacity:1}100%{transform:scale(2.2);opacity:0}}
+    @keyframes pop{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(.9)}}
+    @keyframes dropScroll{0%{opacity:0;transform:translate(-50%,-260%) scale(.9)}25%{opacity:1;transform:translate(-50%,-50%) scale(1.03)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-10%) scale(.95)}}
+
+    @media (max-width:820px){
+      .header-inner,.intro-grid,.final-grid{grid-template-columns:1fr;}
+      .detective-badge{width:112px;height:112px;justify-self:center;}
+      .mini-lesson{grid-template-columns:1fr 1fr;}
+      .choices{grid-template-columns:1fr;}
+      .progress-row{grid-template-columns:1fr;}
+      pre{font-size:.95rem;}
+    }
+
+    @media (max-width:520px){
+      main{padding:0 10px 36px;}
+      .panel{padding:18px;}
+      .mini-lesson{grid-template-columns:1fr;}
+      .case-heading{align-items:flex-start;}
+      .case-icon{width:64px;height:64px;}
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important;}
+      .celebration-layer{display:none !important;}
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <header>
+    <div class="header-inner">
+      <div>
+        <h1>SQL Detective: Data Extraction Lab</h1>
+        <p class="subtitle">A CIT 180 interactive practice activity for SELECT, WHERE, AND, OR, IS NULL, ORDER BY ASC/DESC, and simple JOIN.</p>
+      </div>
+      <div class="detective-badge" aria-hidden="true"><span>🔎</span>SQL<br>Detective</div>
+    </div>
+  </header>
+
+  <main id="main-content" tabindex="-1">
+    <section id="intro" class="panel" aria-labelledby="intro-title">
+      <div class="intro-grid">
+        <div>
+          <h2 id="intro-title">Mission Briefing</h2>
+          <p>You are a database detective. Your job is to read SQL clues and decide what data each query extracts.</p>
+          <p><strong>How it works:</strong> You have <strong>3 attempts for each question</strong>. A hint appears after the first and second incorrect attempt. After three incorrect attempts, the activity moves forward without revealing the correct answer. Review the SQL clue and continue to the next question.</p>
+          <div class="mini-lesson" aria-label="SQL concepts practiced in this activity">
+            <div class="mini-card"><span class="icon" aria-hidden="true">🎯</span><strong>SELECT</strong>Choose columns to display.</div>
+            <div class="mini-card"><span class="icon" aria-hidden="true">📁</span><strong>FROM</strong>Choose the table.</div>
+            <div class="mini-card"><span class="icon" aria-hidden="true">🔍</span><strong>WHERE</strong>Filter rows.</div>
+            <div class="mini-card"><span class="icon" aria-hidden="true">🔗</span><strong>JOIN</strong>Connect tables.</div>
+          </div>
+          <div class="button-row">
+            <button class="primary-btn" id="startBtn">Start Mission</button>
+          </div>
+        </div>
+        <div class="visual-wrap" role="img" aria-label="Illustration of a SQL detective using a magnifying glass to inspect stacked database tables.">
+          <div class="person" aria-hidden="true"><div class="head"></div><div class="body"></div><div class="lens"></div></div>
+          <div class="db-stack" aria-hidden="true"><div class="db-layer"></div><div class="db-layer"></div><div class="db-layer"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="activity" class="panel hidden" aria-labelledby="activity-title">
+      <h2 id="activity-title">Detective Clues</h2>
+      <div class="progress-row" aria-label="Activity progress">
+        <div class="score-pill" id="scoreText">Score: 0 / 12</div>
+        <div class="progress-shell" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
+        <div id="activityCount">Activity 1 of 12</div>
+      </div>
+
+      <div class="case-heading">
+        <svg class="case-icon" viewBox="0 0 120 120" role="img" aria-label="SQL clue icon with a magnifying glass">
+          <rect x="14" y="20" width="58" height="70" rx="10" fill="#fff" stroke="#0b1f3a" stroke-width="5"></rect>
+          <rect x="14" y="20" width="58" height="25" rx="10" fill="#f4c542" stroke="#0b1f3a" stroke-width="5"></rect>
+          <line x1="22" y1="58" x2="64" y2="58" stroke="#b9c7d9" stroke-width="4"></line>
+          <line x1="22" y1="72" x2="64" y2="72" stroke="#b9c7d9" stroke-width="4"></line>
+          <text x="25" y="38" font-size="14" font-weight="800" fill="#0b1f3a">SQL</text>
+          <circle cx="78" cy="54" r="28" fill="rgba(255,255,255,.55)" stroke="#2f80ed" stroke-width="9"></circle>
+          <line x1="98" y1="76" x2="115" y2="94" stroke="#2f80ed" stroke-width="11" stroke-linecap="round"></line>
+        </svg>
+        <div>
+          <span class="case-number" id="caseNumber">Case File 1</span>
+          <h3 class="case-title" id="caseTitle">Case title</h3>
+        </div>
+      </div>
+
+      <div id="questionHost"></div>
+      <div id="feedback" class="feedback hidden" aria-live="polite"></div>
+      <div class="button-row">
+        <button class="primary-btn" id="checkBtn">Check Answer</button>
+        <button class="secondary-btn hidden" id="nextBtn">Next Question</button>
+      </div>
+      <div class="sr-only" id="liveRegion" aria-live="assertive"></div>
+    </section>
+
+    <section id="final" class="panel hidden" aria-labelledby="final-title">
+      <div class="final-grid">
+        <div>
+          <h2 id="final-title">Mission Complete!</h2>
+          <p id="finalScoreText" class="rank">Final Score: 0 / 12</p>
+          <p>Thank you for completing the SQL Detective activity.</p>
+          <p><strong>Concepts practiced:</strong></p>
+          <ul class="concept-list">
+            <li>SELECT</li><li>FROM</li><li>WHERE</li><li>AND</li><li>OR</li><li>IS NULL</li><li>ORDER BY ASC</li><li>ORDER BY DESC</li><li>Simple JOIN</li>
+          </ul>
+          <p><strong>Note:</strong> There is no retry button inside this activity. Please follow your course instructions regarding assignment attempts.</p>
+        </div>
+        <div class="certificate" role="img" aria-label="Certificate-style completion graphic for the SQL Detective activity.">
+          <div style="font-size:3rem" aria-hidden="true">🏆</div>
+          <h2>Case Closed</h2>
+          <p class="rank" id="rankText">SQL Investigator</p>
+          <p>CIT 180 Data Extraction Lab</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="celebration-layer" id="celebrationLayer" aria-hidden="true"></div>
+
+<script>
+(function(){
+  'use strict';
+
+  const MAX_ATTEMPTS = 3;
+  const TOTAL_POINTS = 12;
+
+/* SCORM 1.2 reporting code for Canvas Gradebook */
+let scormAPI = null;
+let scormInitialized = false;
+let scormFinished = false;
+
+function findSCORMAPI(win) {
+  let attempts = 0;
+  while (win && attempts < 500) {
+    if (win.API) return win.API;
+    try {
+      if (win.parent && win.parent !== win) {
+        win = win.parent;
+      } else {
+        break;
+      }
+    } catch (e) {
+      break;
+    }
+    attempts++;
+  }
+  return null;
+}
+
+function getSCORMAPI() {
+  let api = findSCORMAPI(window);
+  if (!api && window.opener) {
+    try { api = findSCORMAPI(window.opener); } catch (e) {}
+  }
+  return api;
+}
+
+function scormInitialize() {
+  if (scormInitialized) return true;
+  scormAPI = getSCORMAPI();
+  if (!scormAPI) {
+    console.warn('SCORM API not found. Score will display in the activity but may not report to LMS.');
+    return false;
+  }
+  try {
+    const result = scormAPI.LMSInitialize('');
+    scormInitialized = (result === true || result === 'true');
+    if (scormInitialized) {
+      scormAPI.LMSSetValue('cmi.core.lesson_status', 'incomplete');
+      scormAPI.LMSSetValue('cmi.core.score.min', '0');
+      scormAPI.LMSSetValue('cmi.core.score.max', String(TOTAL_POINTS));
+      scormAPI.LMSSetValue('cmi.core.score.raw', '0');
+      scormAPI.LMSCommit('');
+    }
+  } catch (e) {
+    console.warn('SCORM initialize failed:', e);
+    scormInitialized = false;
+  }
+  return scormInitialized;
+}
+
+function scormSaveScore(rawScore, isComplete) {
+  if (!scormInitialized) scormInitialize();
+  if (!scormAPI || !scormInitialized) return false;
+  const raw = Math.max(0, Math.min(TOTAL_POINTS, Number(rawScore) || 0));
+  const percent = Math.round((raw / TOTAL_POINTS) * 100);
+  try {
+    scormAPI.LMSSetValue('cmi.core.score.min', '0');
+    scormAPI.LMSSetValue('cmi.core.score.max', String(TOTAL_POINTS));
+    scormAPI.LMSSetValue('cmi.core.score.raw', String(raw));
+    // Some LMSs read lesson_status; Canvas generally records score.raw from SCORM 1.2.
+    scormAPI.LMSSetValue('cmi.core.lesson_status', isComplete ? 'completed' : 'incomplete');
+    // lesson_location helps show that progress has changed if the learner leaves and reopens.
+    scormAPI.LMSSetValue('cmi.core.lesson_location', isComplete ? 'complete' : `score-${raw}-percent-${percent}`);
+    scormAPI.LMSCommit('');
+    return true;
+  } catch (e) {
+    console.warn('SCORM score save failed:', e);
+    return false;
+  }
+}
+
+function scormFinish() {
+  if (scormFinished || !scormAPI || !scormInitialized) return;
+  try {
+    scormAPI.LMSCommit('');
+    scormAPI.LMSFinish('');
+  } catch (e) {
+    console.warn('SCORM finish failed:', e);
+  }
+  scormFinished = true;
+}
+
+window.addEventListener('beforeunload', scormFinish);
+
+
+  const questions = [
+    {
+      title:'Choose all columns',
+      query:`SELECT *\nFROM Customer;`,
+      prompt:'What does the asterisk (*) mean in this query?',
+      choices:['Only the first column','All columns from the Customer table','Only customer names','Only duplicate records'],
+      answer:'All columns from the Customer table',
+      hints:['Look at the symbol after SELECT. It is a shortcut.','The asterisk is used when you want every column in the result.'],
+      explanation:'The asterisk (*) means all columns. This query returns every column from the Customer table.'
+    },
+    {
+      title:'Remove duplicate names',
+      query:`SELECT DISTINCT FirstName, LastName\nFROM Customer;`,
+      prompt:'What does DISTINCT do in this query?',
+      choices:['It removes duplicate first-name and last-name combinations','It sorts names from A to Z','It filters by customer ID','It joins Customer with Purchase'],
+      answer:'It removes duplicate first-name and last-name combinations',
+      hints:['Look at the keyword between SELECT and the column names.','This keyword helps avoid repeated rows in the result.'],
+      explanation:'DISTINCT removes duplicate rows from the selected columns.'
+    },
+    {
+      title:'Filter one customer',
+      query:`SELECT FirstName, LastName\nFROM Customer\nWHERE CustomerID = 714;`,
+      prompt:'What will this query return?',
+      choices:['All customers','Customers with no ID','The customer with ID 714','Only last names sorted'],
+      answer:'The customer with ID 714',
+      hints:['Look at the condition after WHERE.','The query is looking for one specific CustomerID value.'],
+      explanation:'WHERE CustomerID = 714 filters the table so only the customer with that ID is returned.'
+    },
+    {
+      title:'Use two conditions',
+      query:`SELECT PostalCode\nFROM Customer\nWHERE City = 'Atmore' AND Country = 'USA';`,
+      prompt:'Why is AND used here?',
+      choices:['Either condition can be true','It sorts the results','Both conditions must be true','It joins two tables'],
+      answer:'Both conditions must be true',
+      hints:['AND connects two conditions.','With AND, the row must match the city and the country.'],
+      explanation:'AND requires all connected conditions to be true. The customer must be in Atmore and in the USA.'
+    },
+    {
+      title:'Use OR with parentheses',
+      query:`SELECT FirstName, LastName, Phone, City, Country\nFROM Customer\nWHERE Country = 'USA'\nAND (City = 'Webster' OR City = 'Hartford');`,
+      prompt:'Which records does this query find?',
+      choices:['Customers in any country','Customers in the USA and in either Webster or Hartford','Only customers in both Webster and Hartford at the same time','All customers sorted by phone'],
+      answer:'Customers in the USA and in either Webster or Hartford',
+      hints:['The country condition uses AND with a city group.','Inside the parentheses, OR means either city can match.'],
+      explanation:'The query returns customers in the USA whose city is Webster or Hartford.'
+    },
+    {
+      title:'List employees',
+      query:`SELECT *\nFROM Employee;`,
+      prompt:'What table is used in this query?',
+      choices:['Customer','Purchase','Product','Employee'],
+      answer:'Employee',
+      hints:['Look after the FROM keyword.','FROM tells SQL which table to use.'],
+      explanation:'The FROM clause names the table. This query uses the Employee table.'
+    },
+    {
+      title:'Sort descending',
+      query:`SELECT FirstName, LastName\nFROM Employee\nWHERE EXTRACT(YEAR FROM HireDate) = 2011\nORDER BY LastName DESC;`,
+      prompt:'What does ORDER BY LastName DESC do?',
+      choices:['It filters only missing last names','It sorts by last name from Z to A','It removes duplicate employees','It returns only employees named DESC'],
+      answer:'It sorts by last name from Z to A',
+      hints:['ORDER BY controls the display order.','DESC means descending order.'],
+      explanation:'ORDER BY LastName DESC sorts the result by LastName in descending order, from Z to A.'
+    },
+    {
+      title:'Find a shipping range',
+      query:`SELECT *\nFROM Purchase\nWHERE Shipping > 9 AND Shipping < 15;`,
+      prompt:'Which shipping amounts match this condition?',
+      choices:['Exactly 9 and 15 only','Less than 9 only','All shipping amounts','More than 9 and less than 15'],
+      answer:'More than 9 and less than 15',
+      hints:['The symbols > and < do not include the boundary numbers.','The value must be greater than 9 and also less than 15.'],
+      explanation:'Shipping must be greater than 9 and less than 15. The values 9 and 15 are not included.'
+    },
+    {
+      title:'Find missing color',
+      query:`SELECT *\nFROM Product\nWHERE Category = 'sneakers'\nAND Color IS NULL;`,
+      prompt:'What does IS NULL check for?',
+      choices:['The word NULL as text','A sorted value','A missing or empty database value','A duplicate value'],
+      answer:'A missing or empty database value',
+      hints:['NULL is not regular text.','In a database, NULL means the value is missing or unknown.'],
+      explanation:'IS NULL finds records where the database value is missing.'
+    },
+    {
+      title:'Use not equal',
+      query:`SELECT *\nFROM Product\nWHERE Category = 'boots'\nAND Color = 'Black'\nAND Gender <> 'M';`,
+      prompt:'What does Gender <> \'M\' mean?',
+      choices:['Gender must be M','Gender is missing','Gender is sorted descending','Gender is not M'],
+      answer:'Gender is not M',
+      hints:['The symbol <> means not equal.','This condition excludes rows where Gender is M.'],
+      explanation:'The <> operator means not equal to. This condition finds products where Gender is not M.'
+    },
+    {
+      title:'Bonus simple JOIN: Customers and purchases',
+      query:`SELECT Customer.FirstName, Customer.LastName, Purchase.PurchaseDate\nFROM Customer\nJOIN Purchase\nON Customer.CustomerID = Purchase.CustomerID;`,
+      prompt:'Why is JOIN used in this query?',
+      choices:['To sort purchase dates','To combine related rows from Customer and Purchase','To remove duplicate customers','To find missing values only'],
+      answer:'To combine related rows from Customer and Purchase',
+      hints:['Look at the two table names in the FROM and JOIN lines.','JOIN connects rows when matching IDs are found.'],
+      explanation:'JOIN is used to combine related data from two tables. Here, Customer and Purchase are matched by CustomerID.'
+    },
+    {
+      title:'Bonus simple JOIN: Products and purchases',
+      query:`SELECT Product.ProductName, Purchase.PurchaseDate\nFROM Product\nJOIN Purchase\nON Product.ProductID = Purchase.ProductID\nORDER BY Purchase.PurchaseDate ASC;`,
+      prompt:'What does this query do?',
+      choices:['It combines Product and Purchase, then sorts by purchase date from oldest to newest','It deletes old purchases','It finds only missing product names','It shows Product without using Purchase'],
+      answer:'It combines Product and Purchase, then sorts by purchase date from oldest to newest',
+      hints:['There is a JOIN and an ORDER BY clause.','ASC means ascending order, usually oldest to newest for dates.'],
+      explanation:'The query joins Product and Purchase using ProductID and sorts the results by PurchaseDate in ascending order.'
+    }
+  ];
+
+  const state = {
+    index: 0,
+    score: 0,
+    selected: null,
+    attempts: 0,
+    answered: false,
+    shuffledChoices: []
+  };
+
+  const intro = document.getElementById('intro');
+  const activity = document.getElementById('activity');
+  const finalPanel = document.getElementById('final');
+  const startBtn = document.getElementById('startBtn');
+  const checkBtn = document.getElementById('checkBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const questionHost = document.getElementById('questionHost');
+  const feedback = document.getElementById('feedback');
+  const liveRegion = document.getElementById('liveRegion');
+  const scoreText = document.getElementById('scoreText');
+  const progressFill = document.getElementById('progressFill');
+  const activityCount = document.getElementById('activityCount');
+  const caseNumber = document.getElementById('caseNumber');
+  const caseTitle = document.getElementById('caseTitle');
+  const finalScoreText = document.getElementById('finalScoreText');
+  const rankText = document.getElementById('rankText');
+  const celebrationLayer = document.getElementById('celebrationLayer');
+
+  function shuffle(arr){
+    const copy = arr.slice();
+    for(let i=copy.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [copy[i],copy[j]]=[copy[j],copy[i]];
+    }
+    return copy;
+  }
+
+  function start(){
+    scormInitialize();
+    intro.classList.add('hidden');
+    activity.classList.remove('hidden');
+    renderQuestion();
+    activity.focus();
+  }
+
+  function renderQuestion(){
+    state.selected = null;
+    state.attempts = 0;
+    state.answered = false;
+    const q = questions[state.index];
+    state.shuffledChoices = shuffle(q.choices);
+
+    caseNumber.textContent = `Case File ${state.index + 1}`;
+    caseTitle.textContent = q.title;
+    activityCount.textContent = `Activity ${state.index + 1} of ${questions.length}`;
+    updateProgress();
+
+    feedback.className = 'feedback hidden';
+    feedback.textContent = '';
+    liveRegion.textContent = `Case File ${state.index + 1}: ${q.title}`;
+    nextBtn.classList.add('hidden');
+    checkBtn.disabled = true;
+    checkBtn.classList.remove('hidden');
+
+    const choicesHtml = state.shuffledChoices.map((choice, i) => {
+      const id = `choice-${state.index}-${i}`;
+      return `<button type="button" class="choice" id="${id}" data-choice="${escapeAttr(choice)}" aria-pressed="false">${escapeHtml(choice)}</button>`;
+    }).join('');
+
+    questionHost.innerHTML = `
+      <pre aria-label="SQL query for this question"><code>${escapeHtml(q.query)}</code></pre>
+      <p class="question-text">${escapeHtml(q.prompt)}</p>
+      <div class="choices" role="group" aria-label="Answer choices">${choicesHtml}</div>
+      <p class="sr-only" id="attemptInfo">You have three attempts for this question.</p>
+    `;
+
+    questionHost.querySelectorAll('.choice').forEach(btn => {
+      btn.addEventListener('click', () => selectChoice(btn));
+    });
+  }
+
+  function selectChoice(btn){
+    if(state.answered) return;
+    questionHost.querySelectorAll('.choice').forEach(b => b.setAttribute('aria-pressed','false'));
+    btn.setAttribute('aria-pressed','true');
+    state.selected = btn.dataset.choice;
+    checkBtn.disabled = false;
+    liveRegion.textContent = `Selected answer: ${state.selected}`;
+  }
+
+  function checkAnswer(){
+    if(!state.selected || state.answered) return;
+    const q = questions[state.index];
+    const selectedBtn = Array.from(questionHost.querySelectorAll('.choice')).find(btn => btn.dataset.choice === state.selected);
+    const isCorrect = state.selected === q.answer;
+    state.attempts++;
+
+    if(isCorrect){
+      state.score++;
+      scormSaveScore(state.score, false);
+      state.answered = true;
+      selectedBtn.classList.add('correct');
+      disableChoices();
+      updateProgress();
+      showFeedback('success', randomSuccessMessage(q.explanation));
+      celebrate();
+      showNext();
+      liveRegion.textContent = `Correct. You earned one point. Score ${state.score} out of ${TOTAL_POINTS}.`;
+      return;
+    }
+
+    selectedBtn.classList.add('incorrect');
+    selectedBtn.disabled = true;
+    state.selected = null;
+    checkBtn.disabled = true;
+
+    if(state.attempts < MAX_ATTEMPTS){
+      const hintIndex = Math.min(state.attempts - 1, q.hints.length - 1);
+      showFeedback('hint', `<strong>Not quite yet.</strong><br>${escapeHtml(q.hints[hintIndex])}<br><strong>Try again.</strong> Attempts used: ${state.attempts} of ${MAX_ATTEMPTS}.`);
+      liveRegion.textContent = `Incorrect. Hint: ${q.hints[hintIndex]} Try again. Attempts used: ${state.attempts} of ${MAX_ATTEMPTS}.`;
+    } else {
+      state.answered = true;
+      disableChoices();
+      showFeedback('error', `<strong>This clue was not solved.</strong><br>You have reached the maximum number of attempts for this question.<br>Please review the SQL clue carefully before moving forward.`);
+      showNext();
+      liveRegion.textContent = `This clue was not solved. You have reached the maximum number of attempts for this question. Please review the SQL clue carefully before moving forward.`;
+    }
+  }
+
+  function disableChoices(){
+    questionHost.querySelectorAll('.choice').forEach(btn => btn.disabled = true);
+  }
+
+  function showCorrectChoice(){
+    const q = questions[state.index];
+    questionHost.querySelectorAll('.choice').forEach(btn => {
+      if(btn.dataset.choice === q.answer) btn.classList.add('correct');
+    });
+  }
+
+  function showFeedback(type, html){
+    feedback.className = `feedback ${type}`;
+    feedback.innerHTML = html;
+  }
+
+  function showNext(){
+    checkBtn.classList.add('hidden');
+    nextBtn.classList.remove('hidden');
+    nextBtn.focus();
+  }
+
+  function next(){
+    state.index++;
+    if(state.index >= questions.length){
+      finish();
+    } else {
+      renderQuestion();
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+  }
+
+  function finish(){
+    scormSaveScore(state.score, true);
+    activity.classList.add('hidden');
+    finalPanel.classList.remove('hidden');
+    finalScoreText.textContent = `Final Score: ${state.score} / ${TOTAL_POINTS}`;
+    let rank = 'SQL Explorer';
+    if(state.score >= 11) rank = 'Senior SQL Detective';
+    else if(state.score >= 9) rank = 'SQL Investigator';
+    else if(state.score >= 7) rank = 'Database Trainee';
+    rankText.textContent = rank;
+    liveRegion.textContent = `Mission complete. Final score ${state.score} out of ${TOTAL_POINTS}.`;
+    scormFinish();
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  function updateProgress(){
+    scoreText.textContent = `Score: ${state.score} / ${TOTAL_POINTS}`;
+    const pct = (state.index / questions.length) * 100;
+    progressFill.style.width = `${pct}%`;
+  }
+
+  function randomSuccessMessage(explanation){
+    const messages = [
+      '🎉 <strong>Congratulations, you got this one right!</strong>',
+      '⭐ <strong>Excellent detective work!</strong>',
+      '🏆 <strong>Case clue solved!</strong>',
+      '🎈 <strong>Great job! You found the right SQL clue.</strong>',
+      '✨ <strong>Nice work! Your SQL thinking is getting stronger.</strong>',
+      '📜 <strong>Correct! This clue is officially solved.</strong>'
+    ];
+    const msg = messages[Math.floor(Math.random()*messages.length)];
+    return `${msg}<br>${escapeHtml(explanation)}<br><strong>+1 point earned.</strong>`;
+  }
+
+  function celebrate(){
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const types = ['confetti','stars','trophy','balloons','streamers','sparkles','stamp','scroll'];
+    const type = types[Math.floor(Math.random()*types.length)];
+    celebrationLayer.innerHTML = '';
+
+    if(type === 'trophy') return popBox('trophy-pop','🏆<br>SQL Clue Solved!');
+    if(type === 'stamp') return popBox('stamp-pop','🔎 CASE SOLVED');
+    if(type === 'scroll') return popBox('scroll-pop','📜 Correct Answer!');
+
+    const map = {
+      confetti:['🎉','🎊','▰','◆','●'],
+      stars:['⭐','🌟','✦','✧'],
+      balloons:['🎈','🎈','🎈'],
+      streamers:['🎊','〰','~','🎉'],
+      sparkles:['✨','✦','✧','💫']
+    };
+    const clsMap = {
+      confetti:'confetti-piece', stars:'star-piece', balloons:'balloon-piece', streamers:'streamer-piece', sparkles:'sparkle-piece'
+    };
+    const count = type === 'sparkles' ? 18 : 28;
+    for(let i=0;i<count;i++){
+      const el = document.createElement('span');
+      el.className = clsMap[type];
+      el.textContent = map[type][Math.floor(Math.random()*map[type].length)];
+      el.style.left = `${Math.random()*96 + 2}%`;
+      el.style.top = type === 'balloons' ? '' : `${Math.random()*18 - 8}%`;
+      el.style.animationDelay = `${Math.random()*0.35}s`;
+      el.style.fontSize = `${1.2 + Math.random()*1.3}rem`;
+      celebrationLayer.appendChild(el);
+    }
+    setTimeout(()=>celebrationLayer.innerHTML='',2400);
+  }
+
+  function popBox(cls, html){
+    const el = document.createElement('div');
+    el.className = cls;
+    el.innerHTML = html;
+    celebrationLayer.appendChild(el);
+    setTimeout(()=>celebrationLayer.innerHTML='',1800);
+  }
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+  }
+  function escapeAttr(str){ return escapeHtml(str); }
+
+  startBtn.addEventListener('click', start);
+  checkBtn.addEventListener('click', checkAnswer);
+  nextBtn.addEventListener('click', next);
+})();
+</script>
+</body>
+</html>
