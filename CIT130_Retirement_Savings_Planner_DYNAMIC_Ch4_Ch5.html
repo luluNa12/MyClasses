@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CIT 130 Java Retirement Savings Planner Lab</title>
+<style>
+    :root{
+        --bg:#f4f7fb; --card:#ffffff; --ink:#182235; --muted:#5b677a;
+        --primary:#294c9f; --primary-dark:#193a82; --accent:#f0b429;
+        --success:#176b3a; --danger:#9b1c1c; --border:#c9d4e5;
+        --soft:#eef4ff; --focus:#ffbf47; --code-bg:#0f172a; --code-text:#d1fae5;
+    }
+    *{box-sizing:border-box;}
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;}
+    .skip-link{position:absolute;left:-999px;top:0;background:#000;color:#fff;padding:.75rem 1rem;z-index:999;}
+    .skip-link:focus{left:1rem;top:1rem;}
+    header{background:linear-gradient(135deg,var(--primary),#4f46e5);color:#fff;padding:1.5rem;}
+    .wrap{max-width:1200px;margin:0 auto;padding:1rem;}
+    .panel{background:var(--card);border:1px solid var(--border);border-radius:18px;box-shadow:0 10px 30px rgba(15,23,42,.08);overflow:hidden;}
+    h1{margin:.2rem 0;font-size:clamp(1.7rem,3vw,2.5rem);} h2{margin-top:0;}
+    code{background:#eef2ff;padding:.1rem .25rem;border-radius:4px;font-family:"Courier New",Courier,monospace;}
+    .toolbar{display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;justify-content:space-between;padding:1rem;background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5;}
+    .progress-wrap{flex:1 1 300px;} .progress-label{font-weight:bold;margin-bottom:.35rem;} progress{width:100%;height:1rem;accent-color:var(--primary);}
+    button{border:none;border-radius:10px;padding:.7rem 1rem;font-weight:bold;cursor:pointer;background:var(--primary);color:#fff;}
+    button:hover{background:var(--primary-dark);} button:disabled{opacity:.45;cursor:not-allowed;}
+    .secondary{background:#e8eefb;color:#17356f;border:1px solid #b8c7e6;} .secondary:hover{background:#dbe6fb;}
+    .danger{background:#fff1f1;color:#8a1111;border:1px solid #f2b8b8;} .danger:hover{background:#ffe4e4;}
+    .layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(320px,.9fr);gap:1rem;padding:1rem;}
+    @media (max-width:900px){.layout{grid-template-columns:1fr;}.final-panel{position:static!important;}}
+    .step-card{background:#fff;border:1px solid var(--border);border-radius:16px;margin-bottom:1rem;overflow:hidden;}
+    .step-card.locked{opacity:.65;background:#f8fafc;}
+    .step-head{padding:1rem;background:var(--soft);border-bottom:1px solid var(--border);}
+    .step-title{font-size:1.05rem;font-weight:800;margin:0 0 .4rem;}
+    .step-body{padding:1rem;} label{display:block;font-weight:bold;margin-bottom:.4rem;}
+    textarea{width:100%;min-height:125px;padding:.9rem;border:2px solid var(--border);border-radius:12px;resize:vertical;font-family:"Courier New",Courier,monospace;font-size:1rem;color:#0f172a;background:#fff;}
+    textarea:focus,button:focus{outline:4px solid var(--focus);outline-offset:2px;}
+    .step-actions{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;margin-top:.75rem;}
+    .feedback{margin-top:.75rem;padding:.75rem;border-radius:10px;font-weight:bold;}
+    .feedback.good{color:var(--success);background:#eaf7ee;border:1px solid #9bd3ad;}
+    .feedback.bad{color:var(--danger);background:#fff1f1;border:1px solid #efb3b3;}
+    .feedback.info{color:#17356f;background:#eef4ff;border:1px solid #b8c7e6;}
+    .final-panel{position:sticky;top:6rem;align-self:start;background:#fff;border:1px solid var(--border);border-radius:16px;padding:1rem;}
+    #finalCode{min-height:520px;background:var(--code-bg);color:var(--code-text);border-color:#1f2a44;}
+    .note{color:var(--muted);font-size:.95rem;}
+    .badge{display:inline-block;padding:.2rem .55rem;border-radius:999px;background:#e8eefb;color:#17356f;font-size:.85rem;font-weight:bold;}
+    .high-contrast{--bg:#000;--card:#111;--ink:#fff;--muted:#e5e7eb;--primary:#ffd166;--primary-dark:#f4b400;--accent:#fff;--border:#fff;--soft:#222;--code-bg:#000;--code-text:#fff;}
+    .high-contrast button{color:#000;} .high-contrast .secondary{background:#222;color:#fff;border-color:#fff;} .high-contrast textarea{background:#000;color:#fff;border-color:#fff;} .high-contrast code{background:#333;color:#fff;}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#mainContent">Skip to main content</a>
+<div class="wrap"><section class="panel" aria-labelledby="pageTitle">
+<header><h1 id="pageTitle">CIT 130 Retirement Savings Planner Lab</h1><p>Build your Java program step by step. The checker gives hints, not answers.</p></header>
+<div class="toolbar" aria-label="Activity controls"><div class="progress-wrap"><div id="progressText" class="progress-label">Completed: 0 / 17 steps</div><progress id="progressBar" value="0" max="17" aria-label="Completed steps progress"></progress></div><button type="button" class="secondary" id="contrastBtn">Toggle High Contrast</button><button type="button" class="danger" id="resetBtn">Reset Activity</button></div>
+<main id="mainContent" class="layout"><section aria-labelledby="stepsTitle"><h2 id="stepsTitle">Step-by-Step Coding Area</h2><p class="note">Type your Java code for each step. Click <strong>Check Step</strong>. Correct steps are added to the Final Program area. Incorrect steps show only a short instructional hint.</p>
+                <p class="note"><strong>Typing rule:</strong> Please type your code directly in the step boxes. For testing, copy and paste is allowed. After the activity is fully tested, paste blocking can be added back.</p><div id="stepsContainer"></div></section><aside class="final-panel" aria-labelledby="finalTitle"><h2 id="finalTitle">Final Program Area</h2><p class="note">This area builds only from steps that pass the checker. Copy this code and paste it into TextPad when finished.</p><label for="finalCode">Final code assembled from completed steps</label><textarea id="finalCode" readonly aria-label="Final Java program code"></textarea><div class="step-actions"><button type="button" id="copyBtn">Copy Final Code</button></div><div id="copyStatus" class="feedback info" role="status" aria-live="polite">Waiting for completed steps.</div></aside></main>
+</section></div>
+<script>
+(function(){
+"use strict";
+const stepData=[
+{title:"Step 1 – Start the Java program",instruction:"Import the required package, create the class, create the main method, and create the Scanner object to read user input.",validate:validateStep1,hint:"Review the required beginning structure for a Java program. Make sure the program can read keyboard input and that the needed opening braces are included."},
+{title:"Step 2 – Declare and initialize variables",instruction:"Declare all variables needed for the program, including variables for the repeat option, user name, current age, retirement age, annual savings, years until retirement, savings without interest, savings with interest, interest rate, retirement rating, and 2 variables for Math function results.",validate:validateStep2,hint:"Review the assignment requirements. Make sure all variables needed for user input, calculations, ratings, Math results, and repetition have been declared. Remember: one variable declaration per line."},
+{title:"Step 3 – Start the repeat loop",instruction:"Use a while loop so the program can continue running based on the same repeat variable and same response value declared in Step 2.",validate:validateStep3,hint:"Review how a user-controlled repeat loop works. The loop should continue only when the user chooses to continue."},
+{title:"Step 4 – Ask for and read the user's full name",instruction:"Prompt the user to enter a full name and store it in the appropriate variable.",validate:validateStep4,hint:"Review how to prompt the user and read a full line of text."},
+{title:"Step 5 – Ask for and read the current age",instruction:"Prompt the user to enter the current age and store the value.",validate:validateStep5,hint:"Review how to prompt the user and read an integer value."},
+{title:"Step 6 – Validate the current age",instruction:"Use a while loop to verify that the current age is greater than 0. If an invalid value is entered, display an error message and ask the user to enter the age again.",validate:validateStep6,hint:"Review input validation. The loop should repeat only while the entered age is not acceptable, then ask the user to try again."},
+{title:"Step 7 – Ask for and read the retirement age",instruction:"Prompt the user to enter the retirement age and store the value.",validate:validateStep7,hint:"Review how to prompt the user and read an integer value."},
+{title:"Step 8 – Ask for and read the annual savings amount",instruction:"Prompt the user to enter the annual savings amount and store the value.",validate:validateStep8,hint:"Review how to prompt the user and read a decimal value."},
+{title:"Step 9 – Calculate the years until retirement",instruction:"Calculate the number of years until retirement by subtracting the current age from the retirement age.",validate:validateStep9,hint:"Review the formula for years until retirement. Think about which age should be subtracted from the other."},
+{title:"Step 10 – Calculate savings without interest",instruction:"Reset the no-interest balance to zero. Use a loop to add the annual savings amount once for every year until retirement.",validate:validateStep10,hint:"Review the savings-without-interest process. Start from zero, then add the yearly savings once for each year."},
+{title:"Step 11 – Calculate savings with interest",instruction:"Reset the interest balance to zero. Use a loop to add the annual savings amount and then apply the 4% interest rate each year. Note: Check the assignment page for a detailed explanation of how the interest balance is calculated.",validate:validateStep11,hint:"Review the savings-with-interest process. Start from zero, add the yearly savings, then apply the yearly interest during each repetition. Check the assignment page for the math explanation."},
+{title:"Step 12 – Determine the retirement rating",instruction:"Use if, else-if, and else statements to assign a retirement rating based on the amount saved with interest. Note: Check the assignment page for the retirement rating table.",validate:validateStep12,hint:"Review the retirement rating table on the assignment page. Use selection statements to choose the correct rating range."},
+{title:"Step 13 – Use Math functions",instruction:"Calculate the square root of the balance with interest and calculate the rounded whole-number balance. See the sample run in the assignment page.",validate:validateStep13,hint:"Review Step 13. Use the correct Math methods for square root and rounding."},
+{title:"Step 14 – Display name information",instruction:"Display the user's name in uppercase, lowercase, the length of the name, and the first character of the name.",validate:validateStep14,hint:"Review the required String output. Display uppercase, lowercase, length, and the first character of the user’s name."},
+{title:"Step 15 – Display retirement information",instruction:"Display the years until retirement, amount saved without interest, amount saved with interest before rounding, amount saved with interest formatted to two decimal places, square root of the interest balance, rounded interest balance, and retirement rating. Use printf formatting where appropriate.",validate:validateStep15,hint:"Review Step 15. Display years, balances before and after formatting, square root, rounded balance, and rating."},
+{title:"Step 16 – Ask if the user wants another calculation",instruction:"Ask the user whether they would like to perform another calculation. Read the response and store it in the repeat variable.",validate:validateStep16,hint:"Review the repeat question. Ask the user for Y or N, store the response, and prepare the input for the next full-line read if the program repeats."},
+{title:"Step 17 – End the program",instruction:"Display a thank-you message after the user chooses not to continue and close the program structure.",validate:validateStep17,hint:"Review the ending of the program. Include the final message and close the needed program structures."}
+];
+const completed=new Array(stepData.length).fill(false),savedCode=new Array(stepData.length).fill("");
+const stepsContainer=document.getElementById("stepsContainer"),finalCode=document.getElementById("finalCode"),progressText=document.getElementById("progressText"),progressBar=document.getElementById("progressBar"),copyStatus=document.getElementById("copyStatus");
+buildSteps();loadSavedState();refreshLocks();updateFinalCode();
+document.getElementById("copyBtn").addEventListener("click",copyFinalCode);document.getElementById("resetBtn").addEventListener("click",resetActivity);document.getElementById("contrastBtn").addEventListener("click",()=>document.body.classList.toggle("high-contrast"));
+function buildSteps(){stepData.forEach((step,i)=>{const card=document.createElement("article");card.className="step-card";card.id="card-"+i;card.innerHTML=`<div class="step-head"><h3 class="step-title">${step.title} <span id="badge-${i}" class="badge">Locked</span></h3><p>${step.instruction}</p></div><div class="step-body"><label for="step-${i}">Type your Java code for this step</label><textarea id="step-${i}" spellcheck="false" aria-describedby="feedback-${i}" placeholder="Type your Java code for this step here..."></textarea><div class="step-actions"><button type="button" id="check-${i}">Check Step</button></div><div id="feedback-${i}" class="feedback info" role="status" aria-live="polite">Complete the step and click Check Step.</div></div>`;stepsContainer.appendChild(card);document.getElementById("check-"+i).addEventListener("click",()=>checkStep(i));document.getElementById("step-"+i).addEventListener("input",()=>{if(completed[i]){completed[i]=false;savedCode[i]="";setFeedback(i,"info","This step was edited. Click Check Step again to update the Final Program area.");saveState();updateFinalCode();refreshLocks();}});});}
+function checkStep(i){const area=document.getElementById("step-"+i),code=area.value.trim();if(!code){setFeedback(i,"bad","Please enter code before checking this step.");return;}if(hasForbiddenCode(code)){setFeedback(i,"bad","Review this step. The assignment does not require closing the keyboard input object.");return;}const res=stepData[i].validate(code);if(res.ok){completed[i]=true;savedCode[i]=code;setFeedback(i,"good","Correct. This step was added to the Final Program area.");saveState();updateFinalCode();refreshLocks();const next=document.getElementById("step-"+(i+1));if(next&&!next.disabled)next.focus();}else{completed[i]=false;savedCode[i]="";setFeedback(i,"bad",res.hint||stepData[i].hint);saveState();updateFinalCode();refreshLocks();}}
+function refreshLocks(){for(let i=0;i<stepData.length;i++){const unlocked=i===0||completed[i-1]||completed[i],area=document.getElementById("step-"+i),btn=document.getElementById("check-"+i),card=document.getElementById("card-"+i),badge=document.getElementById("badge-"+i);area.disabled=!unlocked;btn.disabled=!unlocked;card.classList.toggle("locked",!unlocked);badge.textContent=completed[i]?"Completed":(unlocked?"Open":"Locked");}const count=completed.filter(Boolean).length;progressText.textContent="Completed: "+count+" / "+stepData.length+" steps";progressBar.value=count;if(count===stepData.length){copyStatus.className="feedback good";copyStatus.textContent="All steps are completed. You can copy the final code and paste it into TextPad.";}}
+function updateFinalCode(){finalCode.value=savedCode.filter(Boolean).join("\n\n");}
+function setFeedback(i,type,message){const box=document.getElementById("feedback-"+i);box.className="feedback "+type;box.textContent=message;}
+function copyFinalCode(){if(!finalCode.value.trim()){copyStatus.className="feedback bad";copyStatus.textContent="There is no code to copy yet.";return;}finalCode.select();finalCode.setSelectionRange(0,999999);navigator.clipboard.writeText(finalCode.value).then(()=>{copyStatus.className="feedback good";copyStatus.textContent="Final code copied. Paste it into TextPad.";}).catch(()=>{document.execCommand("copy");copyStatus.className="feedback good";copyStatus.textContent="Final code copied. Paste it into TextPad.";});}
+function resetActivity(){if(!confirm("Reset all steps and clear the final code area?"))return;localStorage.removeItem("cit130RetirementFinalDynamicV4");for(let i=0;i<stepData.length;i++){completed[i]=false;savedCode[i]="";document.getElementById("step-"+i).value="";setFeedback(i,"info","Complete the step and click Check Step.");}updateFinalCode();refreshLocks();copyStatus.className="feedback info";copyStatus.textContent="Waiting for completed steps.";}
+function saveState(){const textValues=stepData.map((_,i)=>document.getElementById("step-"+i).value);localStorage.setItem("cit130RetirementFinalDynamicV4",JSON.stringify({completed,savedCode,textValues}));}
+function loadSavedState(){try{const raw=localStorage.getItem("cit130RetirementFinalDynamicV4");if(!raw)return;const data=JSON.parse(raw);if(Array.isArray(data.completed))data.completed.forEach((v,i)=>completed[i]=!!v);if(Array.isArray(data.savedCode))data.savedCode.forEach((v,i)=>savedCode[i]=v||"");if(Array.isArray(data.textValues))data.textValues.forEach((v,i)=>{const area=document.getElementById("step-"+i);if(area)area.value=v||"";});}catch(e){}}
+function normalize(code){return code.replace(/\/\/.*$/gm,"").replace(/\/\*[\s\S]*?\*\//g,"").replace(/\s+/g," ").trim();}
+function compact(code){return normalize(code).replace(/\s/g,"");}
+function braceCount(code){const noStrings=code.replace(/"([^"\\]|\\.)*"/g,'""');return{open:(noStrings.match(/{/g)||[]).length,close:(noStrings.match(/}/g)||[]).length};}
+function hasForbiddenCode(code){return /(\w+\.)?close\s*\(/i.test(code);} function hasAll(text,patterns){return patterns.every(p=>p.test(text));} function result(ok,hint){return{ok,hint};}
+
+
+function getContext(){
+    const context={scanner:null, vars:{}, stringInitials:{}};
+
+    const step1=savedCode[0]||document.getElementById("step-0")?.value||"";
+    const step2=savedCode[1]||document.getElementById("step-1")?.value||"";
+
+    let m=normalize(step1).match(/Scanner\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*=\s*new\s+Scanner\s*\(\s*System\.in\s*\)\s*;/);
+    if(m) context.scanner=m[1];
+
+    const rawLines=step2.split(/\n/).map(line=>line.replace(/\/\/.*$/,"").trim()).filter(line=>line.length>0);
+    const decls=[];
+    rawLines.forEach(line=>{
+        const dm=line.match(/^(final\s+)?(String|int|double|long|char|boolean)\s+([A-Za-z_$][A-Za-z0-9_$]*)(?:\s*=\s*([^;]+))?\s*;$/);
+        if(dm){
+            decls.push({isFinal:!!dm[1],type:dm[2],name:dm[3],init:(dm[4]||"").trim(),line});
+            if(dm[2]==="String" && dm[4]){
+                const sm=dm[4].trim().match(/^["']([^"']*)["']$/);
+                if(sm) context.stringInitials[dm[3]]=sm[1];
+            }
+        }
+    });
+
+    const byType=(type)=>decls.filter(d=>d.type===type);
+    const strings=byType("String");
+    const ints=byType("int");
+    const doubles=byType("double");
+    const longs=byType("long");
+
+    const findByName=(list, patterns)=>list.find(d=>patterns.some(p=>p.test(d.name)));
+    const removePicked=(list, picked)=>list.filter(d=>!picked.includes(d));
+
+    const repeat=findByName(strings,[/again/i,/repeat/i,/choice/i,/check/i,/continue/i,/answer/i,/response/i]) || strings.find(d=>d.init) || strings[0];
+    const nameVar=findByName(strings,[/^name$/i,/user.*name/i,/full.*name/i,/name/i]) || strings.find(d=>d!==repeat);
+    const rating=findByName(strings,[/rating/i,/rateText/i,/status/i]) || strings.find(d=>d!==repeat && d!==nameVar) || strings[strings.length-1];
+
+    context.vars.repeat=repeat?.name || null;
+    context.vars.name=nameVar?.name || null;
+    context.vars.rating=rating?.name || null;
+    if(repeat && context.stringInitials[repeat.name]!==undefined) context.vars.repeatValue=context.stringInitials[repeat.name];
+
+    const years=findByName(ints,[/year/i]);
+    const current=findByName(ints,[/current/i,/ageNow/i,/nowAge/i]);
+    const retirement=findByName(ints,[/retire/i,/retirement/i,/future/i]);
+    let remainingInts=ints.slice();
+    [years,current,retirement].forEach(d=>{ if(d) remainingInts=remainingInts.filter(x=>x!==d); });
+
+    context.vars.years=(years||remainingInts.shift())?.name||null;
+    context.vars.currentAge=(current||remainingInts.shift())?.name||null;
+    context.vars.retirementAge=(retirement||remainingInts.shift())?.name||null;
+
+    const rate=doubles.find(d=>d.isFinal) || findByName(doubles,[/rate/i,/interestRate/i]);
+    const noInterest=findByName(doubles,[/no.*interest/i,/without.*interest/i,/nointerest/i]);
+    const withInterest=findByName(doubles,[/^interest/i,/with.*interest/i,/balance.*interest/i,/interest.*balance/i]);
+    const annual=findByName(doubles,[/annual/i,/yearly/i,/saving/i,/amount/i]);
+    const sqrt=findByName(doubles,[/sqrt/i,/square.*root/i,/root/i]);
+    let remainingDoubles=doubles.slice();
+    [rate,noInterest,withInterest,annual,sqrt].forEach(d=>{ if(d) remainingDoubles=remainingDoubles.filter(x=>x!==d); });
+
+    context.vars.interestRate=(rate||remainingDoubles.shift())?.name||null;
+    context.vars.noInterestBalance=(noInterest||remainingDoubles.shift())?.name||null;
+    context.vars.interestBalance=(withInterest||remainingDoubles.shift())?.name||null;
+    context.vars.annualSavings=(annual||remainingDoubles.shift())?.name||null;
+    context.vars.squareRoot=(sqrt||remainingDoubles.shift())?.name||null;
+    context.vars.roundedBalance=(findByName(longs,[/round/i,/whole/i,/integer/i]) || longs[0])?.name || null;
+
+    return context;
+}
+function escReg(name){return name ? name.replace(/[.*+?^${}()|[\]\\]/g,"\\$&") : null;}
+function hasVarAssignment(code,varName,method){
+    if(!varName) return false;
+    const v=escReg(varName);
+    const c=normalize(code);
+    return new RegExp("\\b"+v+"\\s*=\\s*[A-Za-z_$][A-Za-z0-9_$]*\\."+method+"\\s*\\(\\s*\\)\\s*;").test(c);
+}
+function hasPrint(code){return /System\.out\.print(?:ln)?\s*\(/.test(normalize(code));}
+function hasDeclaredVarsForRoles(){
+    const ctx=getContext().vars;
+    return ctx.repeat && ctx.name && ctx.currentAge && ctx.retirementAge && ctx.annualSavings && ctx.years &&
+           ctx.noInterestBalance && ctx.interestBalance && ctx.interestRate && ctx.rating && ctx.squareRoot && ctx.roundedBalance;
+}
+
+
+function stepText(i){
+  const a=document.getElementById("step-"+i);
+  const t=a ? a.value.trim() : "";
+  return t || savedCode[i] || "";
+}
+function escReg(n){return n ? n.replace(/[.*+?^${}()|[\]\\]/g,"\\$&") : "";}
+function getDecls(){
+  return stepText(1).split(/\n/)
+    .map(x=>x.replace(/\/\/.*$/,"").trim()).filter(Boolean)
+    .map(line=>{
+      const m=line.match(/^(final\s+)?(String|int|double|long|char|boolean)\s+([A-Za-z_$][A-Za-z0-9_$]*)(?:\s*=\s*([^;]+))?\s*;$/);
+      return m ? {final:!!m[1],type:m[2],name:m[3],init:(m[4]||"").trim()} : null;
+    }).filter(Boolean);
+}
+function scannerName(){
+  const m=normalize(stepText(0)).match(/Scanner\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*=\s*new\s+Scanner\s*\(\s*System\.in\s*\)\s*;/);
+  return m ? m[1] : null;
+}
+function findBy(list, pats, ex=[]){return list.find(d=>!ex.includes(d) && pats.some(p=>p.test(d.name)));}
+function roleVars(){
+  const ds=getDecls(), strs=ds.filter(d=>d.type==="String"), ints=ds.filter(d=>d.type==="int"), dbls=ds.filter(d=>d.type==="double"), lngs=ds.filter(d=>d.type==="long");
+  const repeat=findBy(strs,[/again/i,/repeat/i,/choice/i,/check/i,/continue/i,/answer/i,/response/i]) || strs.find(d=>d.init) || strs[0];
+  const name=findBy(strs,[/^name$/i,/name/i],[repeat]) || strs.find(d=>d!==repeat);
+  const rating=findBy(strs,[/rating/i,/status/i,/message/i,/level/i],[repeat,name]) || strs.find(d=>d!==repeat && d!==name) || strs[strs.length-1];
+  const years=findBy(ints,[/^years?$/i,/years/i,/until/i]);
+  const current=findBy(ints,[/current.*age/i,/age.*current/i,/current/i,/age.*now/i,/now.*age/i]);
+  const retire=findBy(ints,[/retire/i,/retirement/i,/future/i]);
+  let ip=ints.filter(d=>![years,current,retire].includes(d));
+  const rate=dbls.find(d=>d.final) || findBy(dbls,[/interest.*rate/i,/rate/i]);
+  const noInt=findBy(dbls,[/no.*interest/i,/without.*interest/i,/nointerest/i]);
+  const withInt=findBy(dbls,[/interest.*balance/i,/balance.*interest/i,/with.*interest/i],[rate,noInt]);
+  const annual=findBy(dbls,[/annual/i,/yearly/i,/saving/i,/amount/i],[rate,noInt,withInt]);
+  const sqrt=findBy(dbls,[/square.*root/i,/sqrt/i,/root/i],[rate,noInt,withInt,annual]);
+  let dp=dbls.filter(d=>![rate,noInt,withInt,annual,sqrt].includes(d));
+  const rounded=findBy(lngs,[/round/i,/whole/i,/integer/i]) || lngs[lngs.length-1] || lngs[0];
+  const init = repeat && repeat.init ? (repeat.init.match(/^["']([^"']*)["']$/)||[])[1] : undefined;
+  return {
+    repeat:repeat&&repeat.name, repeatValue:init, name:name&&name.name, rating:rating&&rating.name,
+    years:(years||ip.shift())?.name, currentAge:(current||ip.shift())?.name, retirementAge:(retire||ip.shift())?.name,
+    interestRate:(rate||dp.shift())?.name, noInterestBalance:(noInt||dp.shift())?.name,
+    interestBalance:(withInt||dp.shift())?.name, annualSavings:(annual||dp.shift())?.name, squareRoot:(sqrt||dp.shift())?.name,
+    roundedBalance:rounded&&rounded.name
+  };
+}
+function reVar(v){return "\\b"+escReg(v)+"\\b";}
+function hasPrint(code){return /System\.out\.print(?:ln)?\s*\(/.test(normalize(code));}
+function readWith(code, v, method){
+  const s=scannerName(); if(!s||!v) return false;
+  return new RegExp(reVar(v)+"\\s*=\\s*"+escReg(s)+"\\."+method+"\\s*\\(\\s*\\)\\s*;").test(normalize(code));
+}
+
+function stepText(i){
+  const a=document.getElementById("step-"+i);
+  const current=a ? a.value.trim() : "";
+  return current || savedCode[i] || "";
+}
+function escReg(name){
+  return name ? name.replace(/[.*+?^${}()|[\]\\]/g,"\\$&") : "";
+}
+function cleanLines(code){
+  return code.split(/\n/).map(x=>x.replace(/\/\/.*$/,"").trim()).filter(Boolean);
+}
+function getDecls(){
+  return cleanLines(stepText(1)).map(line=>{
+    const m=line.match(/^(final\s+)?(String|int|double|long|char|boolean)\s+([A-Za-z_$][A-Za-z0-9_$]*)(?:\s*=\s*([^;]+))?\s*;$/);
+    return m ? {final:!!m[1], type:m[2], name:m[3], init:(m[4]||"").trim(), line:line} : null;
+  }).filter(Boolean);
+}
+function scannerName(){
+  const m=normalize(stepText(0)).match(/Scanner\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*=\s*new\s+Scanner\s*\(\s*System\.in\s*\)\s*;/);
+  return m ? m[1] : null;
+}
+function pick(list, patterns, exclude){
+  exclude=exclude||[];
+  return list.find(d=>!exclude.includes(d) && patterns.some(p=>p.test(d.name)));
+}
+function roleVars(){
+  const decls=getDecls();
+  const strings=decls.filter(d=>d.type==="String");
+  const ints=decls.filter(d=>d.type==="int");
+  const doubles=decls.filter(d=>d.type==="double");
+  const longs=decls.filter(d=>d.type==="long");
+
+  const repeat=pick(strings,[/again/i,/repeat/i,/choice/i,/check/i,/continue/i,/answer/i,/response/i]) || strings.find(d=>d.init) || strings[0] || null;
+  const name=pick(strings,[/^name$/i,/user.*name/i,/full.*name/i,/name/i],[repeat]) || strings.find(d=>d!==repeat) || null;
+  const rating=pick(strings,[/rating/i,/status/i,/level/i,/message/i],[repeat,name]) || strings.find(d=>d!==repeat && d!==name) || null;
+
+  const years=pick(ints,[/^years?$/i,/years/i,/until/i,/left/i]);
+  const current=pick(ints,[/current.*age/i,/age.*current/i,/current/i,/age.*now/i,/now.*age/i]);
+  const retire=pick(ints,[/retire.*age/i,/retirement.*age/i,/age.*retire/i,/future.*age/i,/retirement/i]);
+  let intPool=ints.filter(d=>![years,current,retire].includes(d));
+
+  const rate=doubles.find(d=>d.final) || pick(doubles,[/interest.*rate/i,/rate/i]);
+  const noInterest=pick(doubles,[/no.*interest/i,/without.*interest/i,/nointerest/i]);
+  const withInterest=pick(doubles,[/interest.*balance/i,/balance.*interest/i,/with.*interest/i,/interest/i],[rate,noInterest]);
+  const annual=pick(doubles,[/annual/i,/yearly/i,/saving/i,/amount/i],[rate,noInterest,withInterest]);
+  const root=pick(doubles,[/square.*root/i,/squareroot/i,/sqrt/i,/root/i],[rate,noInterest,withInterest,annual]);
+  let dblPool=doubles.filter(d=>![rate,noInterest,withInterest,annual,root].includes(d));
+
+  // Prefer rounded balance over rounded savings if both exist.
+  const rounded=pick(longs,[/round.*balance/i,/balance.*round/i]) ||
+                pick(longs,[/roundedBalance/i,/round/i,/whole/i,/integer/i]) ||
+                longs[longs.length-1] || longs[0] || null;
+
+  const repeatValue=repeat && repeat.init ? ((repeat.init.match(/^["']([^"']*)["']$/)||[])[1]) : undefined;
+
+  return {
+    repeat: repeat && repeat.name,
+    repeatValue: repeatValue,
+    name: name && name.name,
+    rating: rating && rating.name,
+    years: (years || intPool.shift() || null)?.name || null,
+    currentAge: (current || intPool.shift() || null)?.name || null,
+    retirementAge: (retire || intPool.shift() || null)?.name || null,
+    interestRate: (rate || dblPool.shift() || null)?.name || null,
+    noInterestBalance: (noInterest || dblPool.shift() || null)?.name || null,
+    interestBalance: (withInterest || dblPool.shift() || null)?.name || null,
+    annualSavings: (annual || dblPool.shift() || null)?.name || null,
+    squareRoot: (root || dblPool.shift() || null)?.name || null,
+    roundedBalance: rounded && rounded.name
+  };
+}
+function reVar(v){return "\\b"+escReg(v)+"\\b";}
+function hasPrint(code){return /System\.out\.print(?:ln)?\s*\(/.test(normalize(code));}
+function readWith(code, varName, method){
+  const s=scannerName();
+  if(!s || !varName) return false;
+  return new RegExp(reVar(varName)+"\\s*=\\s*"+escReg(s)+"\\."+method+"\\s*\\(\\s*\\)\\s*;").test(normalize(code));
+}
+function anyDeclaredName(type){
+  return getDecls().filter(d=>d.type===type).map(d=>d.name);
+}
+function isDeclared(name, type){
+  return getDecls().some(d=>d.name===name && (!type || d.type===type));
+}
+
+function validateStep1(code){
+  const c=normalize(code), b=braceCount(code);
+  const ok=/import\s+java\.util\.Scanner\s*;/.test(c)
+    && /public\s+class\s+[A-Za-z_$][A-Za-z0-9_$]*\s*\{/.test(c)
+    && /public\s+static\s+void\s+main\s*\(\s*String\s*\[\s*\]\s+args\s*\)\s*\{/.test(c)
+    && /Scanner\s+[A-Za-z_$][A-Za-z0-9_$]*\s*=\s*new\s+Scanner\s*\(\s*System\.in\s*\)\s*;/.test(c)
+    && b.open>=2;
+  return result(ok,"Review Step 1. Include the Scanner import, valid class name, main method, and any valid Scanner object name.");
+}
+function validateStep2(code){
+  const lines=cleanLines(code);
+  if(lines.length<8) return result(false,"Review Step 2. Declare the needed variables, one variable per line.");
+  if(lines.some(x=>/^(final\s+)?(String|int|double|long|char|boolean)\s+[^;]*,/.test(x))){
+    return result(false,"Declare one variable per line. Do not use commas.");
+  }
+  const valid=lines.every(x=>/^(final\s+)?(String|int|double|long|char|boolean)\s+[A-Za-z_$][A-Za-z0-9_$]*(\s*=\s*[^;]+)?\s*;$/.test(x));
+  const v=roleVars();
+  const ok=valid && v.repeat && v.name && v.currentAge && v.retirementAge && v.annualSavings && v.years &&
+           v.noInterestBalance && v.interestBalance && v.interestRate && v.rating && v.squareRoot && v.roundedBalance;
+  return result(ok,"Review Step 2. Use valid declarations and meaningful names so the checker can track them later.");
+}
+function validateStep3(code){
+  const v=roleVars(), c=normalize(code), b=braceCount(code);
+  if(!v.repeat) return result(false,"Review Step 3. The repeat variable from Step 2 was not found.");
+  const nameOk=new RegExp(reVar(v.repeat)+"\\s*\\.\\s*equalsIgnoreCase\\s*\\(").test(c);
+  let valueOk=true;
+  if(v.repeatValue!==undefined){
+    const m=c.match(new RegExp(reVar(v.repeat)+"\\s*\\.\\s*equalsIgnoreCase\\s*\\(\\s*[\"']([^\"']+)[\"']\\s*\\)"));
+    valueOk=!!m && m[1].toLowerCase()===v.repeatValue.toLowerCase();
+  }
+  return result(/while\s*\(/.test(c)&&nameOk&&valueOk&&b.open>=1,"Review Step 3. Use the same repeat variable and same response value from Step 2.");
+}
+function validateStep4(code){const v=roleVars(); return result(hasPrint(code)&&readWith(code,v.name,"nextLine"),"Review Step 4. Use the same name variable from Step 2 and Scanner object from Step 1.");}
+function validateStep5(code){const v=roleVars(); return result(hasPrint(code)&&readWith(code,v.currentAge,"nextInt"),"Review Step 5. Use the same current age variable from Step 2 and read it with nextInt().");}
+function validateStep6(code){
+  const v=roleVars(), c=normalize(code), b=braceCount(code);
+  return result(v.currentAge && new RegExp("while\\s*\\(\\s*"+escReg(v.currentAge)+"\\s*<=\\s*0\\s*\\)").test(c)&&/System\.out\.println\s*\(/.test(c)&&readWith(code,v.currentAge,"nextInt")&&b.open>=1,"Review Step 6. Validate the same current age variable from Step 2.");
+}
+function validateStep7(code){const v=roleVars(); return result(hasPrint(code)&&readWith(code,v.retirementAge,"nextInt"),"Review Step 7. Use the same retirement age variable from Step 2 and read it with nextInt().");}
+function validateStep8(code){const v=roleVars(); return result(hasPrint(code)&&readWith(code,v.annualSavings,"nextDouble"),"Review Step 8. Use the same annual savings variable from Step 2 and read it with nextDouble().");}
+function validateStep9(code){
+  const v=roleVars(), s=compact(code);
+  return result(v.years&&v.retirementAge&&v.currentAge&&new RegExp(reVar(v.years)+"="+escReg(v.retirementAge)+"-"+escReg(v.currentAge)+";").test(s),"Review Step 9. Use the same years, retirement age, and current age variables from Step 2.");
+}
+function validateStep10(code){
+  const v=roleVars(), c=normalize(code), s=compact(code);
+  const ok=v.noInterestBalance&&v.annualSavings&&v.years
+    && new RegExp(reVar(v.noInterestBalance)+"=0(?:\\.0)?;").test(s)
+    && /for\s*\(/.test(c)
+    && new RegExp(reVar(v.years)).test(c)
+    && (new RegExp(reVar(v.noInterestBalance)+"\\+="+escReg(v.annualSavings)+";").test(s) ||
+        new RegExp(reVar(v.noInterestBalance)+"="+escReg(v.noInterestBalance)+"\\+"+escReg(v.annualSavings)+";").test(s));
+  return result(ok,"Review Step 10. Use the same no-interest balance, annual savings, and years variables from Step 2.");
+}
+function validateStep11(code){
+  const v=roleVars(), c=normalize(code), s=compact(code);
+  const ok=v.interestBalance&&v.annualSavings&&v.interestRate&&v.years
+    && new RegExp(reVar(v.interestBalance)+"=0(?:\\.0)?;").test(s)
+    && /for\s*\(/.test(c)
+    && new RegExp(reVar(v.years)).test(c)
+    && (new RegExp(reVar(v.interestBalance)+"="+escReg(v.interestBalance)+"\\+"+escReg(v.annualSavings)+";").test(s) ||
+        new RegExp(reVar(v.interestBalance)+"\\+="+escReg(v.annualSavings)+";").test(s))
+    && (new RegExp(reVar(v.interestBalance)+"\\+="+escReg(v.interestBalance)+"\\*"+escReg(v.interestRate)+";").test(s) ||
+        new RegExp(reVar(v.interestBalance)+"="+escReg(v.interestBalance)+"\\+"+escReg(v.interestBalance)+"\\*"+escReg(v.interestRate)+";").test(s));
+  return result(ok,"Review Step 11. Use the same interest balance, annual savings, interest rate, and years variables from Step 2.");
+}
+function validateStep12(code){
+  const v=roleVars(), c=normalize(code), s=compact(code);
+  const ok=v.interestBalance&&v.rating
+    && new RegExp("if\\s*\\(\\s*"+escReg(v.interestBalance)+"\\s*<\\s*50000\\s*\\)").test(c)
+    && new RegExp("else\\s+if\\s*\\(\\s*"+escReg(v.interestBalance)+"\\s*<\\s*100000\\s*\\)").test(c)
+    && /else\s*\{?/.test(c)
+    && new RegExp(reVar(v.rating)+"=").test(s);
+  return result(ok,"Review Step 12. Use the same interest balance and rating variables from Step 2.");
+}
+function validateStep13(code){
+  const v=roleVars(), s=compact(code);
+  if(/Math\.pow\s*\(/.test(normalize(code))) return result(false,"Review Step 13. Do not calculate the balance squared in this updated version.");
+  const sqrtAssign=s.match(/([A-Za-z_$][A-Za-z0-9_$]*)=Math\.sqrt\(([A-Za-z_$][A-Za-z0-9_$]*)\);/);
+  const roundAssign=s.match(/([A-Za-z_$][A-Za-z0-9_$]*)=Math\.round\(([A-Za-z_$][A-Za-z0-9_$]*)\);/);
+  const sqrtOk=!!sqrtAssign && sqrtAssign[2]===v.interestBalance && isDeclared(sqrtAssign[1],"double");
+  const roundOk=!!roundAssign && roundAssign[2]===v.interestBalance && isDeclared(roundAssign[1],"long");
+  return result(sqrtOk&&roundOk,"Review Step 13. Use the interest balance variable, one declared double variable for square root, and one declared long variable for the rounded balance.");
+}
+function validateStep14(code){
+  const v=roleVars(), c=normalize(code), n=escReg(v.name);
+  const ok=n&&/System\.out\.println\s*\(/.test(c)&&new RegExp(n+"\\s*\\.\\s*toUpperCase\\s*\\(\\s*\\)").test(c)&&new RegExp(n+"\\s*\\.\\s*toLowerCase\\s*\\(\\s*\\)").test(c)&&new RegExp(n+"\\s*\\.\\s*length\\s*\\(\\s*\\)").test(c)&&new RegExp(n+"\\s*\\.\\s*charAt\\s*\\(\\s*0\\s*\\)").test(c);
+  return result(ok,"Review Step 14. Use the same name variable from Step 2.");
+}
+function validateStep15(code){
+  const v=roleVars(), c=normalize(code);
+  const required=[v.years,v.noInterestBalance,v.interestBalance,v.squareRoot,v.roundedBalance,v.rating].every(x=>x&&new RegExp(reVar(x)).test(c));
+  const count=(c.match(/System\.out\.(println|printf)\s*\(/g)||[]).length;
+  const ok=required&&count>=6&&/System\.out\.printf\s*\(/.test(c)&&(/%\s*,?\.2f|%\.2f/.test(c))&&(/%\s*,?d|%d/.test(c))&&!/squared|square\s+of|Math\.pow/i.test(c);
+  return result(ok,"Review Step 15. Display the same variables used in the previous steps.");
+}
+function validateStep16(code){
+  const v=roleVars(), s=scannerName(), c=normalize(code);
+  const ok=hasPrint(code)&&v.repeat&&s&&new RegExp(reVar(v.repeat)+"\\s*=\\s*"+escReg(s)+"\\.next\\w*\\s*\\(\\s*\\)\\s*;").test(c);
+  return result(ok,"Review Step 16. Store the answer in the same repeat variable from Step 2.");
+}
+function validateStep17(code){
+  const c=normalize(code), b=braceCount(code);
+  return result(/System\.out\.println\s*\(/.test(c)&&/thank/i.test(c)&&b.close>=2,"Review Step 17. Include the thank-you message and close the needed program structures.");
+}
+})();
+</script>
+</body>
+</html>
