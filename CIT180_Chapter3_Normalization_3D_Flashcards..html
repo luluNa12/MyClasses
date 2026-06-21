@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CIT180 Chapter 3 Normalization 3D Flashcards</title>
+<style>
+:root{
+  --bg:#f4f7fb;
+  --card:#ffffff;
+  --ink:#10233f;
+  --muted:#4f5f73;
+  --primary:#1f5fbf;
+  --primary-dark:#123f82;
+  --accent:#f59e0b;
+  --good:#047857;
+  --border:#d8e2ef;
+  --focus:#ffbf47;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  background:linear-gradient(135deg,#eef5ff,#f9fbff);
+  color:var(--ink);
+  line-height:1.55;
+}
+header{
+  background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+  color:white;
+  padding:2rem 1rem;
+  text-align:center;
+}
+header h1{
+  margin:0 0 .5rem;
+  font-size:clamp(1.7rem,3vw,2.7rem);
+}
+header p{
+  margin:.35rem auto;
+  max-width:850px;
+  font-size:1.05rem;
+}
+main{
+  max-width:1180px;
+  margin:0 auto;
+  padding:1.5rem 1rem 3rem;
+}
+.instructions{
+  background:white;
+  border:2px solid var(--border);
+  border-left:8px solid var(--accent);
+  border-radius:16px;
+  padding:1rem 1.2rem;
+  margin:1rem 0 1.5rem;
+  box-shadow:0 8px 20px rgba(16,35,63,.07);
+}
+.instructions h2{margin:.1rem 0 .4rem;font-size:1.25rem}
+.motion-controls{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:.8rem;
+  margin-top:.8rem;
+}
+.motion-controls button{
+  background:var(--primary-dark);
+  color:white;
+  border:2px solid var(--primary-dark);
+  border-radius:999px;
+  padding:.6rem 1rem;
+  font-weight:700;
+  cursor:pointer;
+}
+.motion-controls button:hover{
+  background:white;
+  color:var(--primary-dark);
+}
+.motion-controls button:focus-visible{
+  outline:5px solid var(--focus);
+  outline-offset:3px;
+}
+#motionStatus{
+  font-weight:700;
+  color:var(--primary-dark);
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:1.25rem;
+}
+.flip-card{
+  min-height:410px;
+  perspective:1200px;
+}
+.flip-button{
+  width:100%;
+  height:100%;
+  min-height:410px;
+  padding:0;
+  border:0;
+  background:transparent;
+  cursor:pointer;
+  text-align:left;
+  font:inherit;
+}
+.flip-button:focus-visible{
+  outline:5px solid var(--focus);
+  outline-offset:5px;
+  border-radius:18px;
+}
+.inner{
+  position:relative;
+  width:100%;
+  min-height:410px;
+  transition:transform .7s;
+  transform-style:preserve-3d;
+}
+.flip-card.flipped .inner{
+  transform:rotateY(180deg);
+}
+body.reduce-motion .inner{
+  transition:none;
+}
+body.reduce-motion .flip-card.flipped .inner{
+  transform:none;
+}
+body.reduce-motion .flip-card .front{
+  display:flex;
+}
+body.reduce-motion .flip-card.flipped .front{
+  display:none;
+}
+body.reduce-motion .flip-card .back{
+  transform:none;
+  display:none;
+}
+body.reduce-motion .flip-card.flipped .back{
+  display:block;
+}
+.face{
+  position:absolute;
+  inset:0;
+  background:var(--card);
+  border:2px solid var(--border);
+  border-radius:20px;
+  padding:1.05rem;
+  backface-visibility:hidden;
+  box-shadow:0 12px 28px rgba(16,35,63,.12);
+  overflow:auto;
+}
+.front{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:space-between;
+  text-align:center;
+}
+.back{
+  transform:rotateY(180deg);
+}
+.tag{
+  display:inline-block;
+  background:#eaf2ff;
+  color:var(--primary-dark);
+  border:1px solid #bcd3ff;
+  padding:.25rem .55rem;
+  border-radius:999px;
+  font-weight:700;
+  font-size:.85rem;
+  margin-bottom:.5rem;
+}
+.concept-title{
+  font-size:1.55rem;
+  margin:.5rem 0;
+  color:var(--primary-dark);
+}
+.prompt{
+  color:var(--muted);
+  font-weight:700;
+}
+.flip-hint{
+  margin-top:.75rem;
+  color:var(--primary-dark);
+  font-weight:700;
+}
+.visual{
+  width:100%;
+  max-width:260px;
+  min-height:150px;
+  margin:.5rem auto;
+  border-radius:16px;
+  background:#f8fbff;
+  border:1px solid var(--border);
+  padding:.7rem;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.mini-table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:.82rem;
+  background:white;
+}
+.mini-table th{
+  background:var(--primary);
+  color:white;
+}
+.mini-table th,.mini-table td{
+  border:1px solid #b9c8dc;
+  padding:.28rem;
+  text-align:center;
+}
+.highlight{
+  background:#fff3bf!important;
+  color:#111!important;
+  font-weight:700;
+}
+.bad{
+  background:#ffe4e6!important;
+  color:#111!important;
+  font-weight:700;
+}
+.good-cell{
+  background:#dcfce7!important;
+  color:#111!important;
+  font-weight:700;
+}
+.link-line{
+  height:4px;
+  background:var(--accent);
+  width:42px;
+  display:inline-block;
+  vertical-align:middle;
+  margin:0 .25rem;
+}
+.icon{
+  font-size:3.2rem;
+  line-height:1;
+  margin:.3rem 0;
+}
+.back h3{
+  margin:.1rem 0 .4rem;
+  color:var(--primary-dark);
+  font-size:1.35rem;
+}
+.back p{margin:.45rem 0}
+.example{
+  background:#f6f9fe;
+  border-left:5px solid var(--primary);
+  padding:.65rem;
+  border-radius:10px;
+  margin:.7rem 0;
+}
+.remember{
+  background:#ecfdf5;
+  border-left:5px solid var(--good);
+  padding:.65rem;
+  border-radius:10px;
+  margin-top:.7rem;
+  font-weight:700;
+}
+.sr-only{
+  position:absolute;
+  width:1px;
+  height:1px;
+  padding:0;
+  margin:-1px;
+  overflow:hidden;
+  clip:rect(0,0,0,0);
+  white-space:nowrap;
+  border:0;
+}
+footer{
+  text-align:center;
+  color:var(--muted);
+  padding:1.5rem;
+  border-top:1px solid var(--border);
+  background:white;
+}
+@media (prefers-reduced-motion: reduce){
+  .inner{transition:none}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>CIT180 Chapter 3: Normalization Learning Tool</h1>
+  <p>Interactive 3D flashcards for primary keys, foreign keys, referential integrity, functional dependencies, and normal forms.</p>
+</header>
+
+<main>
+  <section class="instructions" aria-labelledby="how-to-use">
+    <h2 id="how-to-use">How to Use These Flashcards</h2>
+    <p>Click a card, or use the <strong>Tab</strong> key and press <strong>Enter</strong> or <strong>Space</strong>, to flip it. Read both sides of each card to review Chapter 3 normalization concepts.</p>
+    <div class="motion-controls">
+      <button id="motionToggle" type="button" aria-pressed="false">Reduce Motion: Off</button>
+      <span id="motionStatus" role="status" aria-live="polite">3D flip animation is currently on.</span>
+    </div>
+  </section>
+
+  <section class="grid" aria-label="Normalization flashcards">
+
+    <article class="flip-card">
+      <button class="flip-button" type="button" aria-label="Front side showing for Primary Key. Activate to flip to back.">
+        <div class="inner">
+          <div class="face front">
+            <span class="tag">Database Keys</span>
+            <div class="visual" aria-hidden="true">
+              <table class="mini-table">
+                <tr><th>ClubID</th><th>Club Name</th><th>Advisor</th></tr>
+                <tr><td class="highlight">C-101</td><td>Robotics Club</td><td>Dr. Lee</td></tr>
+                <tr><td class="highlight">C-102</td><td>Cyber Club</td><td>Prof. Hall</td></tr>
+              </table>
+            </div>
+            <div>
+              <div class="icon" aria-hidden="true">🔑</div>
+              <h2 class="concept-title">Primary Key</h2>
+              <p class="prompt">Which column uniquely identifies each record?</p>
+            </div>
+            <p class="flip-hint">Flip card</p>
+          </div>
+          <div class="face back">
+            <h3>Primary Key</h3>
+            <p>A <strong>primary key</strong> is a field that uniquely identifies each row in a table.</p>
+            <div class="example"><strong>Example:</strong> In a Clubs table, <strong>ClubID</strong> can be the primary key because each club has a different ID.</div>
+            <p>A primary key should not be duplicated and should not be empty.</p>
+            <div class="remember">Remember: One row, one unique identifier.</div>
+          </div>
+        </div>
+      </button>
+    </article>
+
+    <article class="flip-card">
+      <button class="flip-button" type="button" aria-label="Front side showing for Foreign Key. Activate to flip to back.">
+        <div class="inner">
+          <div class="face front">
+            <span class="tag">Table Relationships</span>
+            <div class="visual" aria-hidden="true">
+              <div>
+                <table class="mini-table">
+                  <tr><th>Clubs</th></tr><tr><td class="highlight">ClubID</td></tr>
+                </table>
+                <span class="link-line"></span>
+                <table class="mini-table">
+                  <tr><th>Events</th></tr><tr><td class="highlight">ClubID</td></tr>
+                </table>
+              </div>
+            </div>
+            <div>
+              <div class="icon" aria-hidden="true">🔗</div>
+              <h2 class="concept-title">Foreign Key</h2>
+              <p class="prompt">How do two tables connect?</p>
+            </div>
+            <p class="flip-hint">Flip card</p>
+          </div>
+          <div class="face back">
+            <h3>Foreign Key</h3>
+            <p>A <strong>foreign key</strong> is a field in one table that refers to the primary key in another table.</p>
+            <div class="example"><strong>Example:</strong> Events.ClubID connects each event record to a club in the Clubs table.</div>
+            <p>Foreign keys help connect related data without repeating all information in every table.</p>
+            <div class="remember">Remember: A foreign key creates a relationship between tables.</div>
+          </div>
+        </div>
+      </button>
+    </article>
+
+    <article class="flip-card">
+      <button class="flip-button" type="button" aria-label="Front side showing for Referential Integrity. Activate to flip to back.">
+        <div class="inner">
+          <div class="face front">
+            <span class="tag">Data Accuracy</span>
+            <div class="visual" aria-hidden="true">
+              <table class="mini-table">
+                <tr><th>EventID</th><th>ClubID</th><th>Status</th></tr>
+                <tr><td>E-10</td><td class="good-cell">C-101</td><td>Valid</td></tr>
+                <tr><td>E-11</td><td class="bad">C-999</td><td>Invalid</td></tr>
+              </table>
+            </div>
+            <div>
+              <div class="icon" aria-hidden="true">🛡️</div>
+              <h2 class="concept-title">Referential Integrity</h2>
+              <p class="prompt">What keeps relationships valid?</p>
+            </div>
+            <p class="flip-hint">Flip card</p>
+          </div>
+          <div class="face back">
+            <h3>Referential Integrity</h3>
+            <p><strong>Referential integrity</strong> means a foreign key value must match an existing primary key value in the related table.</p>
+            <div class="example"><strong>Example:</strong> An event cannot use ClubID C-999 unless C-999 exists in the Clubs table.</div>
+            <p>This prevents orphan records and keeps the database consistent.</p>
+            <div class="remember">Remember: A relationship must point to a real record.</div>
+          </div>
+        </div>
+      </button>
+    </article>
+
+    <article class="flip-card">
+      <button class="flip-button" type="button" aria-label="Front side showing for Functional Dependency. Activate to flip to back.">
+        <div class="inner">
+          <div class="face front">
+            <span class="tag">Normalization Concept</span>
+            <div class="visual" aria-hidden="true">
+              <table class="mini-table">
+                <tr><th>ClubID</th><th>ClubName</th></tr>
+                <tr><td class="highlight">C-101</td><td>Robotics Club</td></tr>
+              </table>
+            </div>
+            <div>
+              <div class="icon" aria-hidden="true">➡️</div>
+              <h2 class="concept-title">Functional Dependency</h2>
+              <p class="prompt">When does one field determine another field?</p>
+            </div>
+            <p class="flip-hint">Flip card</p>
+          </div>
+          <div class="face back">
+            <h3>Functional Dependency</h3>
+            <p>A <strong>functional dependency</strong> happens when one attribute determines another attribute.</p>
+            <div class="example"><strong>Example:</strong> ClubID → ClubName means knowing the ClubID tells you the club name.</div>
+            <p>Functional dependencies help identify where data belongs during normalization.</p>
+            <div class="remember">Remember: A → B means A determines B.</div>
+          </div>
+        </div>
+      </button>
+    </article>
+
+    <article class="flip-card">
+      <button class="flip-button" type="button" aria-label="Front side showing for First Normal Form. Activate to flip to back.">
+        <div class="inner">
+          <div class="face front">
+            <span class="tag">1NF</span>
+            <div class="visual" aria-hidden="true">
+              <table class="mini-table">
+                <tr><th>ClubID</th><th>Advisor Phones</th></tr>
+                <tr><td>C-101</td><td class="bad">702-1111, 702-2222</td></tr>
+              </table>
+            </div>
+            <div>
+              <div class="icon" aria-hidden="true">📋</div>
+              <h2 class="concept-title">First Normal Form</h2>
+              <p class="prompt">Are values atomic with no repeating groups?</p>
+            </div>
+            <p class="flip-hint">Flip card</p>
+          </div>
+          <div class="face back">
+            <h3>First Normal Form (1NF)</h3>
+            <p>A table is in <strong>1NF</strong> when each cell contains one value and there are no repeating groups.</p>
+            <div class="example"><strong>New example:</strong> A club record should not store two phone numbers in one cell, such as <strong>702-1111, 702-2222</strong>.<br><strong>Fix:</strong> Store each phone number in a separate row or related phone table.</div>
+            <p>1NF makes the table easier to search, filter, and update.</p>
+            <div class="remember">Remember: One cell = one value.</div>
+          </div>
+        </div>
+      </button>
+    </article>
+
+    <article class="flip-card">
+      <button class="flip-button" type="button" aria-label="Front side showing for Second Normal Form. Activate to flip to back.">
+        <div class="inner">
+          <div class="face front">
+            <span class="tag">2NF</span>
+            <div class="visual" aria-hidden="true">
+              <table class="mini-table">
+                <tr><th>ClubID</th><th>EventID</th><th>EventName</th></tr>
+                <tr><td>C-101</td><td class="highlight">E-10</td><td class="highlight">Welcome Night</td></tr>
+              </table>
+            </div>
+            <div>
+              <div class="icon" aria-hidden="true">📑</div>
+              <h2 class="concept-title">Second Normal Form</h2>
+              <p class="prompt">Does every non-key field depend on the whole key?</p>
+            </div>
+            <p class="flip-hint">Flip card</p>
+          </div>
+          <div class="face back">
+            <h3>Second Normal Form (2NF)</h3>
+            <p>A table is in <strong>2NF</strong> when it is already in 1NF and every non-key column depends on the entire primary key.</p>
+            <div class="example"><strong>New example:</strong> In a ClubEventAttendance table with <strong>ClubID + EventID</strong> as the key, <strong>EventName</strong> depends only on EventID, not the full key.<br><strong>Fix:</strong> Move EventName to an Events table.</div>
+            <p>2NF removes partial dependencies.</p>
+            <div class="remember">Remember: Non-key data must depend on the full key.</div>
+          </div>
+        </div>
+      </button>
+    </article>
+
+    <article class="flip-card">
+      <button class="flip-button" type="button" aria-label="Front side showing for Third Normal Form. Activate to flip to back.">
+        <div class="inner">
+          <div class="face front">
+            <span class="tag">3NF</span>
+            <div class="visual" aria-hidden="true">
+              <table class="mini-table">
+                <tr><th>ClubID</th><th>AdvisorID</th><th>AdvisorOffice</th></tr>
+                <tr><td>C-101</td><td class="highlight">A-20</td><td class="highlight">Room B204</td></tr>
+              </table>
+            </div>
+            <div>
+              <div class="icon" aria-hidden="true">🏆</div>
+              <h2 class="concept-title">Third Normal Form</h2>
+              <p class="prompt">Are non-key fields depending on other non-key fields?</p>
+            </div>
+            <p class="flip-hint">Flip card</p>
+          </div>
+          <div class="face back">
+            <h3>Third Normal Form (3NF)</h3>
+            <p>A table is in <strong>3NF</strong> when it is already in 2NF and has no transitive dependencies.</p>
+            <div class="example"><strong>New example:</strong> ClubID determines AdvisorID, and AdvisorID determines AdvisorOffice. AdvisorOffice depends on AdvisorID, not directly on ClubID.<br><strong>Fix:</strong> Move advisor office information to an Advisors table.</div>
+            <p>3NF reduces repeated data and update problems.</p>
+            <div class="remember">Remember: Non-key fields should not depend on other non-key fields.</div>
+          </div>
+        </div>
+      </button>
+    </article>
+
+  </section>
+</main>
+
+<footer>
+  CIT180 Database Concepts · Chapter 3 Normalization Review
+</footer>
+
+<script>
+(function(){
+  const cards = document.querySelectorAll('.flip-card');
+  const motionToggle = document.getElementById('motionToggle');
+  const motionStatus = document.getElementById('motionStatus');
+
+  function setReduceMotion(isReduced){
+    document.body.classList.toggle('reduce-motion', isReduced);
+    motionToggle.setAttribute('aria-pressed', String(isReduced));
+    motionToggle.textContent = isReduced ? 'Reduce Motion: On' : 'Reduce Motion: Off';
+    motionStatus.textContent = isReduced ? 
+      'Reduce motion is on. Cards will switch sides without animation.' :
+      '3D flip animation is currently on.';
+  }
+
+  const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  setReduceMotion(prefersReduced);
+
+  motionToggle.addEventListener('click', function(){
+    setReduceMotion(!document.body.classList.contains('reduce-motion'));
+  });
+
+  cards.forEach(card => {
+    const button = card.querySelector('.flip-button');
+    const title = card.querySelector('.concept-title')?.textContent || 'flashcard';
+    button.addEventListener('click', () => {
+      card.classList.toggle('flipped');
+      button.setAttribute('aria-label', card.classList.contains('flipped') ?
+        'Back side showing for ' + title + '. Activate to flip to front.' :
+        'Front side showing for ' + title + '. Activate to flip to back.');
+    });
+    button.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter' || e.key === ' '){
+        e.preventDefault();
+        button.click();
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>
