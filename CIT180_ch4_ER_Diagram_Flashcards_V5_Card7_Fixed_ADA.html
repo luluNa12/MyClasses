@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ER Diagram Notation Flashcards - ADA Version</title>
+<style>
+:root{
+  --navy:#07285f; --blue:#005ea8; --green:#0b6f33; --orange:#c94700;
+  --purple:#5b2c91; --teal:#00706b; --red:#b42318;
+  --bg:#f5f7fb; --card:#ffffff; --text:#111827; --muted:#475569;
+  --border:#cbd5e1; --focus:#ffbf47; --soft:#eef6ff;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Arial, Helvetica, sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
+header{background:linear-gradient(135deg,#061b44,var(--navy));color:white;text-align:center;padding:22px 16px}
+h1{margin:0;font-size:clamp(1.8rem,4vw,3rem)}
+header p{margin:.35rem 0 0;font-size:1.05rem;color:#fff4a3}
+main{max-width:1380px;margin:auto;padding:20px}
+.instructions,.status,.legend{background:white;border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.status{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+progress{width:min(420px,100%);height:18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:18px}
+.card-wrap{height:520px;perspective:1300px}
+.flip-button{width:100%;height:100%;border:0;background:transparent;padding:0;text-align:left;cursor:pointer}
+.flip-button:focus-visible{outline:5px solid var(--focus);outline-offset:5px;border-radius:18px}
+.card{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .55s}
+.card-wrap.flipped .card{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;background:var(--card);border:2px solid var(--border);border-radius:18px;box-shadow:0 4px 14px rgba(0,0,0,.12);padding:16px;overflow:auto}
+.back{transform:rotateY(180deg)}
+.face h2{margin:.1rem 0 .7rem;color:var(--navy);font-size:1.35rem}
+.num{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--navy);color:white;margin-right:8px;font-weight:700}
+.front-label,.back-label{font-weight:700;text-transform:uppercase;font-size:.82rem;color:var(--muted);letter-spacing:.03em}
+.diagram{background:#f8fafc;border:1px solid #dbe3ef;border-radius:12px;margin:10px 0;padding:8px;text-align:center}
+svg{max-width:100%;height:auto}
+.keypoint{background:#eef6ff;border-left:5px solid var(--blue);padding:9px;border-radius:8px;margin-top:10px}
+.model{font-family:"Courier New",monospace;background:#f1f5f9;border-radius:8px;padding:8px;font-size:.9rem;white-space:normal}
+ul{margin:.4rem 0 .4rem 1.25rem;padding:0}
+.flip-hint{font-weight:700;color:var(--navy);margin-top:10px}
+.sr-only{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.entity-blue{fill:#eaf2ff;stroke:#005ea8;stroke-width:2}
+.entity-green{fill:#e8f5e9;stroke:#0b6f33;stroke-width:2}
+.entity-orange{fill:#fff3e6;stroke:#c94700;stroke-width:2}
+.entity-purple{fill:#f3e8ff;stroke:#5b2c91;stroke-width:2}
+.rel{stroke:#111;stroke-width:4;fill:none;stroke-linecap:round}
+.dash{stroke-dasharray:12 10}
+.smalltext{font-size:13px}
+footer{margin:24px 0;background:white;border:1px solid var(--border);border-radius:14px;padding:14px}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  .card{transition:none}
+  .card-wrap.flipped .card{transform:none}
+  .card-wrap.flipped .front{display:none}
+  .card-wrap.flipped .back{transform:none}
+}
+@media (max-width:480px){.card-wrap{height:590px}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+<h1>ER Diagram Notation Flashcards</h1>
+<p>Front = definition. Back = real database example with diagram.</p>
+</header>
+<main>
+<section class="instructions" aria-labelledby="inst-title">
+<h2 id="inst-title">Instructions</h2>
+<p>Use <strong>Tab</strong> to move between flashcards. Press <strong>Enter</strong> or <strong>Space</strong> to flip a card. Each diagram has a text explanation for screen readers.</p>
+</section>
+<section class="status" aria-label="Flashcard progress">
+<strong>Progress:</strong> <span id="progressText">0 of 10 cards viewed</span>
+<progress id="progressBar" value="0" max="10">0 of 10</progress>
+<button type="button" id="resetBtn">Reset progress</button>
+</section>
+<div id="announce" class="sr-only" aria-live="polite"></div>
+
+<div class="grid">
+
+<!-- 1 -->
+<div class="card-wrap" data-card="1">
+<button class="flip-button" aria-expanded="false" aria-label="Card 1 Solid Line. Press Enter or Space to flip.">
+<div class="card">
+<section class="face front">
+<div class="front-label">Front: Definition</div>
+<h2><span class="num">1</span>Solid Line</h2>
+<p>A solid line represents an <strong>identifying or mandatory relationship</strong>.</p>
+<p>The relationship is required; the entity must participate. Mandatory participation is also called full participation.</p>
+<div class="diagram" aria-label="A solid line connects Entity A to Entity B.">
+<svg viewBox="0 0 420 130" role="img">
+<title>Solid line diagram</title>
+<rect x="25" y="45" width="120" height="45" rx="7" class="entity-green"/><text x="85" y="72" text-anchor="middle" font-weight="700">Entity A</text>
+<line x1="145" y1="68" x2="275" y2="68" class="rel"/>
+<rect x="275" y="45" width="120" height="45" rx="7" class="entity-green"/><text x="335" y="72" text-anchor="middle" font-weight="700">Entity B</text>
+</svg>
+</div>
+<div class="keypoint">Key point: solid line = must / required = full participation.</div>
+<p class="flip-hint">Flip for a real example.</p>
+</section>
+<section class="face back">
+<div class="back-label">Back: Example</div>
+<h2>ClassSection and Student</h2>
+<div class="diagram" aria-label="ClassSection is connected to Student with a solid relationship line.">
+<svg viewBox="0 0 430 130" role="img">
+<title>ClassSection and Student solid line</title>
+<rect x="20" y="45" width="130" height="45" rx="7" class="entity-blue"/><text x="85" y="72" text-anchor="middle" font-weight="700">ClassSection</text>
+<line x1="150" y1="68" x2="285" y2="68" class="rel"/>
+<rect x="285" y="45" width="115" height="45" rx="7" class="entity-green"/><text x="342" y="72" text-anchor="middle" font-weight="700">Student</text>
+</svg>
+</div>
+<ul><li>Each Student must belong to a ClassSection.</li><li>The solid line shows the relationship is required.</li></ul>
+<div class="model">Students(StudentID, FirstName, LastName, ClassSectionID*)</div>
+</section>
+</div>
+</button>
+</div>
+
+<!-- 2 -->
+<div class="card-wrap" data-card="2">
+<button class="flip-button" aria-expanded="false" aria-label="Card 2 Dashed Line. Press Enter or Space to flip.">
+<div class="card">
+<section class="face front">
+<div class="front-label">Front: Definition</div>
+<h2><span class="num">2</span>Dashed Line</h2>
+<p>A dashed line represents a <strong>non-identifying or optional relationship</strong>.</p>
+<p>One entity may exist without the other entity. Optional participation is also called partial participation.</p>
+<div class="diagram" aria-label="A dashed line connects Entity A to Entity B.">
+<svg viewBox="0 0 420 130" role="img">
+<title>Dashed line diagram</title>
+<rect x="25" y="45" width="120" height="45" rx="7" class="entity-blue"/><text x="85" y="72" text-anchor="middle" font-weight="700">Entity A</text>
+<line x1="145" y1="68" x2="275" y2="68" class="rel dash"/>
+<rect x="275" y="45" width="120" height="45" rx="7" class="entity-blue"/><text x="335" y="72" text-anchor="middle" font-weight="700">Entity B</text>
+</svg>
+</div>
+<div class="keypoint">Key point: dashed line = may / optional = partial participation.</div>
+</section>
+<section class="face back">
+<div class="back-label">Back: Example</div>
+<h2>Student and Enrollment</h2>
+<div class="diagram" aria-label="Student to Enrollment uses a half dashed and half solid line. Dashed on Student side, solid on Enrollment side.">
+<svg viewBox="0 0 470 140" role="img">
+<title>Student and Enrollment half dashed half solid</title>
+<rect x="20" y="48" width="115" height="45" rx="7" class="entity-blue"/><text x="77" y="75" text-anchor="middle" font-weight="700">Student</text>
+<line x1="135" y1="70" x2="220" y2="70" class="rel dash"/>
+<line x1="220" y1="70" x2="335" y2="70" class="rel"/>
+<line x1="335" y1="48" x2="335" y2="92" class="rel"/>
+<rect x="345" y="48" width="110" height="45" rx="7" class="entity-green"/><text x="400" y="75" text-anchor="middle" font-weight="700">Enrollment</text>
+</svg>
+</div>
+<ul><li>A Student may have an Enrollment record or may have none.</li><li>Each Enrollment must belong to one Student.</li></ul>
+<div class="keypoint">Dashed on Student side = optional. Solid on Enrollment side = required.</div>
+</section>
+</div>
+</button>
+</div>
+
+<!-- 3 -->
+<div class="card-wrap" data-card="3">
+<button class="flip-button" aria-expanded="false" aria-label="Card 3 Single Toe. Press Enter or Space to flip.">
+<div class="card">
+<section class="face front">
+<div class="front-label">Front: Definition</div>
+<h2><span class="num">3</span>Single Toe (One)</h2>
+<p>A single toe symbol <strong>|</strong> means <strong>one</strong>.</p>
+<p>It shows exactly one occurrence on that side of the relationship.</p>
+<div class="diagram" aria-label="A relationship line ends with one vertical single toe bar.">
+<svg viewBox="0 0 420 130" role="img">
+<title>Single toe symbol</title>
+<rect x="25" y="45" width="120" height="45" rx="7" class="entity-purple"/><text x="85" y="72" text-anchor="middle" font-weight="700">Entity A</text>
+<line x1="145" y1="68" x2="290" y2="68" class="rel"/>
+<line x1="290" y1="42" x2="290" y2="94" class="rel"/>
+<rect x="305" y="45" width="90" height="45" rx="7" class="entity-purple"/><text x="350" y="72" text-anchor="middle" font-weight="700">B</text>
+</svg>
+</div>
+<div class="keypoint">Key point: | = one.</div>
+</section>
+<section class="face back">
+<div class="back-label">Back: Example</div>
+<h2>Driver and Car</h2>
+<div class="diagram" aria-label="Driver and Car connected with one symbol.">
+<svg viewBox="0 0 430 130" role="img">
+<title>Driver and Car one example</title>
+<rect x="35" y="45" width="110" height="45" rx="7" class="entity-blue"/><text x="90" y="72" text-anchor="middle" font-weight="700">Driver</text>
+<line x1="145" y1="68" x2="280" y2="68" class="rel"/>
+<line x1="280" y1="43" x2="280" y2="93" class="rel"/>
+<rect x="295" y="45" width="100" height="45" rx="7" class="entity-green"/><text x="345" y="72" text-anchor="middle" font-weight="700">Car</text>
+</svg>
+</div>
+<ul><li>Each Driver has one Car.</li><li>Each Car is assigned to one Driver.</li></ul>
+</section>
+</div>
+</button>
+</div>
+
+<!-- 4 -->
+<div class="card-wrap" data-card="4">
+<button class="flip-button" aria-expanded="false" aria-label="Card 4 Crow's Foot. Press Enter or Space to flip.">
+<div class="card">
+<section class="face front">
+<div class="front-label">Front: Definition</div>
+<h2><span class="num">4</span>Crow's Foot (Many)</h2>
+<p>A crow's foot symbol means <strong>many</strong>.</p>
+<p>It shows one or more occurrences on that side of the relationship.</p>
+<div class="diagram" aria-label="A relationship line ends with a crow's foot symbol.">
+<svg viewBox="0 0 420 130" role="img">
+<title>Crow's foot symbol</title>
+<rect x="25" y="45" width="120" height="45" rx="7" class="entity-orange"/><text x="85" y="72" text-anchor="middle" font-weight="700">Entity A</text>
+<line x1="145" y1="68" x2="285" y2="68" class="rel"/>
+<line x1="285" y1="68" x2="325" y2="37" class="rel"/>
+<line x1="285" y1="68" x2="325" y2="99" class="rel"/>
+<rect x="335" y="45" width="60" height="45" rx="7" class="entity-orange"/><text x="365" y="72" text-anchor="middle" font-weight="700">B</text>
+</svg>
+</div>
+<div class="keypoint">Key point: crow's foot = many.</div>
+</section>
+<section class="face back">
+<div class="back-label">Back: Example</div>
+<h2>ClassSection and Enrollment</h2>
+<div class="diagram" aria-label="ClassSection to Enrollment uses dashed line on ClassSection side and solid line on Enrollment side with many symbol.">
+<svg viewBox="0 0 510 145" role="img">
+<title>ClassSection and Enrollment crow's foot example</title>
+<rect x="20" y="50" width="130" height="45" rx="7" class="entity-orange"/><text x="85" y="77" text-anchor="middle" font-weight="700">ClassSection</text>
+<line x1="150" y1="72" x2="245" y2="72" class="rel dash"/>
+<line x1="245" y1="72" x2="335" y2="72" class="rel"/>
+<line x1="335" y1="72" x2="370" y2="43" class="rel"/>
+<line x1="335" y1="72" x2="370" y2="101" class="rel"/>
+<line x1="382" y1="49" x2="382" y2="96" class="rel"/>
+<rect x="392" y="50" width="105" height="45" rx="7" class="entity-orange"/><text x="445" y="77" text-anchor="middle" font-weight="700">Enrollment</text>
+</svg>
+</div>
+<ul><li>A ClassSection may have many Enrollments, or may have none.</li><li>Every Enrollment must belong to one ClassSection.</li></ul>
+<div class="keypoint">Dashed on ClassSection side = optional. Solid on Enrollment side = required.</div>
+</section>
+</div>
+</button>
+</div>
+
+<!-- 5 -->
+<div class="card-wrap" data-card="5">
+<button class="flip-button" aria-expanded="false" aria-label="Card 5 One to One. Press Enter or Space to flip.">
+<div class="card">
+<section class="face front">
+<div class="front-label">Front: Definition</div>
+<h2><span class="num">5</span>One-to-One (1:1)</h2>
+<p>Each record in A is related to one and only one record in B, and vice versa.</p>
+<div class="diagram" aria-label="One-to-one relationship with one symbol on both sides.">
+<svg viewBox="0 0 430 130" role="img">
+<title>One to one relationship</title>
+<rect x="25" y="45" width="120" height="45" rx="7" class="entity-teal entity-blue"/><text x="85" y="72" text-anchor="middle" font-weight="700">Entity A</text>
+<line x1="160" y1="43" x2="160" y2="93" class="rel"/>
+<line x1="160" y1="68" x2="270" y2="68" class="rel"/>
+<line x1="270" y1="43" x2="270" y2="93" class="rel"/>
+<rect x="285" y="45" width="120" height="45" rx="7" class="entity-green"/><text x="345" y="72" text-anchor="middle" font-weight="700">Entity B</text>
+</svg>
+</div>
+</section>
+<section class="face back">
+<div class="back-label">Back: Example</div>
+<h2>Driver and Car (1:1)</h2>
+<div class="diagram" aria-label="Driver and Car one-to-one relationship.">
+<svg viewBox="0 0 430 130" role="img">
+<title>Driver and Car one-to-one</title>
+<rect x="35" y="45" width="110" height="45" rx="7" class="entity-blue"/><text x="90" y="72" text-anchor="middle" font-weight="700">Driver</text>
+<line x1="160" y1="43" x2="160" y2="93" class="rel"/>
+<line x1="160" y1="68" x2="270" y2="68" class="rel"/>
+<line x1="270" y1="43" x2="270" y2="93" class="rel"/>
+<rect x="285" y="45" width="100" height="45" rx="7" class="entity-green"/><text x="335" y="72" text-anchor="middle" font-weight="700">Car</text>
+</svg>
+</div>
+<ul><li>Each Driver has exactly one Car.</li><li>Each Car is assigned to exactly one Driver.</li></ul>
+<div class="model">Drivers(DriverID, FirstName, LastName)<br>Cars(CarID, Brand, Model, DriverID*)</div>
+</section>
+</div>
+</button>
+</div>
+
+<!-- 6 -->
+<div class="card-wrap" data-card="6">
+<button class="flip-button" aria-expanded="false" aria-label="Card 6 One to Many. Press Enter or Space to flip.">
+<div class="card">
+<section class="face front">
+<div class="front-label">Front: Definition</div>
+<h2><span class="num">6</span>One-to-Many (1:M)</h2>
+<p>One record in A <strong>is related</strong> to many records in B.</p>
+<p>Each record in B is related to one record in A.</p>
+<div class="diagram" aria-label="One-to-many relationship with one symbol on A side and crow's foot on B side.">
+<svg viewBox="0 0 450 130" role="img">
+<title>One to many relationship</title>
+<rect x="25" y="45" width="120" height="45" rx="7" class="entity-blue"/><text x="85" y="72" text-anchor="middle" font-weight="700">Entity A</text>
+<line x1="160" y1="43" x2="160" y2="93" class="rel"/>
+<line x1="160" y1="68" x2="305" y2="68" class="rel"/>
+<line x1="305" y1="68" x2="345" y2="37" class="rel"/>
+<line x1="305" y1="68" x2="345" y2="99" class="rel"/>
+<rect x="355" y="45" width="70" height="45" rx="7" class="entity-green"/><text x="390" y="72" text-anchor="middle" font-weight="700">B</text>
+</svg>
+</div>
+</section>
+<section class="face back">
+<div class="back-label">Back: Example</div>
+<h2>ClassSection and Students (1:M)</h2>
+<div class="diagram" aria-label="ClassSection has many Students with one-to-many relationship.">
+<svg viewBox="0 0 490 145" role="img">
+<title>ClassSection and Students one-to-many</title>
+<rect x="20" y="50" width="130" height="45" rx="7" class="entity-blue"/><text x="85" y="77" text-anchor="middle" font-weight="700">ClassSection</text>
+<line x1="165" y1="48" x2="165" y2="98" class="rel"/>
+<line x1="165" y1="73" x2="330" y2="73" class="rel"/>
+<line x1="330" y1="73" x2="370" y2="42" class="rel"/>
+<line x1="330" y1="73" x2="370" y2="104" class="rel"/>
+<rect x="380" y="50" width="95" height="45" rx="7" class="entity-green"/><text x="428" y="77" text-anchor="middle" font-weight="700">Students</text>
+</svg>
+</div>
+<ul><li>One ClassSection must have Students.</li><li>Each Student must belong to one ClassSection.</li></ul>
+<div class="model">Students(StudentID, FirstName, LastName, ClassSectionID*)</div>
+</section>
+</div>
+</button>
+</div>
+
+<!-- 7 -->
+<div class="card-wrap" data-card="7">
+<button class="flip-button" aria-expanded="false" aria-label="Card 7 Many to Many. Press Enter or Space to flip.">
+<div class="card">
+<section class="face front">
+<div class="front-label">Front: Definition</div>
+<h2><span class="num">7</span>Many-to-Many (M:N)</h2>
+<p>Many records in A are related to many records in B.</p>
+<p>A junction or associative table is required to implement this relationship.</p>
+<div class="diagram" aria-label="Many-to-many relationship with crow's foot on both sides.">
+<svg viewBox="0 0 520 150" role="img">
+<title>Many-to-many original relationship between Students and Courses</title>
+<rect x="25" y="52" width="125" height="45" rx="7" class="entity-purple"/><text x="87" y="79" text-anchor="middle" font-weight="700">Students</text>
+<!-- Crow's foot attached to Students side -->
+<line x1="150" y1="75" x2="188" y2="47" class="rel"/>
+<line x1="150" y1="75" x2="188" y2="103" class="rel"/>
+<line x1="188" y1="75" x2="332" y2="75" class="rel"/>
+<!-- Crow's foot attached to Courses side -->
+<line x1="332" y1="75" x2="370" y2="47" class="rel"/>
+<line x1="332" y1="75" x2="370" y2="103" class="rel"/>
+<rect x="370" y="52" width="125" height="45" rx="7" class="entity-purple"/><text x="432" y="79" text-anchor="middle" font-weight="700">Courses</text>
+</svg>
+</div>
+</section>
+<section class="face back">
+<div class="back-label">Back: Example and Fix</div>
+<h2>Students, Enrollment, and Courses</h2>
+<div class="diagram" aria-label="Students connects to Enrollment and Enrollment connects to Courses. Enrollment is the associative table.">
+<svg viewBox="0 0 620 170" role="img">
+<title>Many-to-many fixed with Enrollment associative table</title>
+<rect x="20" y="62" width="115" height="45" rx="7" class="entity-purple"/><text x="77" y="89" text-anchor="middle" font-weight="700">Student</text>
+<!-- Student one side -->
+<line x1="155" y1="58" x2="155" y2="112" class="rel"/>
+<line x1="155" y1="85" x2="245" y2="85" class="rel"/>
+<!-- Enrollment many side for Student relationship -->
+<line x1="245" y1="85" x2="285" y2="55" class="rel"/>
+<line x1="245" y1="85" x2="285" y2="115" class="rel"/>
+<rect x="285" y="62" width="125" height="45" rx="7" class="entity-green"/><text x="347" y="89" text-anchor="middle" font-weight="700">Enrollment</text>
+<!-- Enrollment many side for Course relationship -->
+<line x1="410" y1="85" x2="450" y2="55" class="rel"/>
+<line x1="410" y1="85" x2="450" y2="115" class="rel"/>
+<line x1="450" y1="85" x2="535" y2="85" class="rel"/>
+<!-- Course one side -->
+<line x1="535" y1="58" x2="535" y2="112" class="rel"/>
+<rect x="548" y="62" width="65" height="45" rx="7" class="entity-purple"/><text x="580" y="89" text-anchor="middle" font-weight="700">Course</text>
+</svg>
+</div>
+<ul><li>Students and Courses have a many-to-many relationship.</li><li>To implement this correctly, create Enrollment as the associative table.</li><li>Each Enrollment must reference one Student and one Course.</li><li>One Student can have many Enrollment records, and one Course can have many Enrollment records.</li></ul>
+<div class="model">Enrollment(EnrollmentID, StudentID*, CourseID*)</div>
+</section>
+</div>
+</button>
+</div>
+
+<!-- 8 -->
+<div class="card-wrap" data-card="8">
+<button class="flip-button" aria-expanded="false" aria-label="Card 8 Cardinality. Press Enter or Space to flip.">
+<div class="card">
+<section class="face front">
+<div class="front-label">Front: Definition</div>
+<h2><span class="num">8</span>Cardinality</h2>
+<p>Cardinality describes the number of instances of one entity that can be related to instances of another entity.</p>
+<p>It answers: <strong>how many?</strong></p>
+<div class="diagram" aria-label="One-to-many cardinality diagram from A to B.">
+<svg viewBox="0 0 420 130" role="img"><title>Cardinality example</title>
+<rect x="40" y="45" width="90" height="45" rx="7" class="entity-blue"/><text x="85" y="72" text-anchor="middle" font-weight="700">A</text>
+<line x1="145" y1="43" x2="145" y2="93" class="rel"/><line x1="145" y1="68" x2="275" y2="68" class="rel"/>
+<line x1="275" y1="68" x2="315" y2="38" class="rel"/><line x1="275" y1="68" x2="315" y2="98" class="rel"/>
+<rect x="325" y="45" width="60" height="45" rx="7" class="entity-green"/><text x="355" y="72" text-anchor="middle" font-weight="700">B</text>
+</svg></div>
+</section>
+<section class="face back">
+<div class="back-label">Back: Example</div>
+<h2>ClassSection and Student</h2>
+<ul><li>One ClassSection is related to many Students.</li><li>Each Student is related to one ClassSection.</li></ul>
+<p><strong>Cardinality notation:</strong> 1:M, which is the same relationship as M:1 when read from the other direction.</p>
+</section>
+</div>
+</button>
+</div>
+
+<!-- 9 -->
+<div class="card-wrap" data-card="9">
+<button class="flip-button" aria-expanded="false" aria-label="Card 9 Relationship. Press Enter or Space to flip.">
+<div class="card">
+<section class="face front">
+<div class="front-label">Front: Definition</div>
+<h2><span class="num">9</span>Relationship</h2>
+<p>A relationship is a connection between two or more entities that shows how they are associated with each other.</p>
+<div class="diagram" aria-label="Relationship connects Entity A and Entity B.">
+<svg viewBox="0 0 420 130" role="img"><title>Relationship line</title>
+<rect x="30" y="45" width="120" height="45" rx="7" class="entity-orange"/><text x="90" y="72" text-anchor="middle" font-weight="700">Entity A</text>
+<line x1="150" y1="68" x2="275" y2="68" class="rel"/>
+<rect x="275" y="45" width="120" height="45" rx="7" class="entity-orange"/><text x="335" y="72" text-anchor="middle" font-weight="700">Entity B</text>
+</svg></div>
+</section>
+<section class="face back">
+<div class="back-label">Back: Example</div>
+<h2>Chapter and Section</h2>
+<div class="diagram" aria-label="Chapter is related to many Sections.">
+<svg viewBox="0 0 460 130" role="img"><title>Chapter and Section relationship</title>
+<rect x="30" y="45" width="110" height="45" rx="7" class="entity-orange"/><text x="85" y="72" text-anchor="middle" font-weight="700">Chapter</text>
+<line x1="155" y1="43" x2="155" y2="93" class="rel"/><line x1="155" y1="68" x2="300" y2="68" class="rel"/>
+<line x1="300" y1="68" x2="340" y2="38" class="rel"/><line x1="300" y1="68" x2="340" y2="98" class="rel"/>
+<rect x="350" y="45" width="90" height="45" rx="7" class="entity-orange"/><text x="395" y="72" text-anchor="middle" font-weight="700">Section</text>
+</svg></div>
+<ul><li>Each Chapter is related to one or more Sections.</li><li>Each Section is related to one Chapter.</li></ul>
+<div class="model">Section(SectionNum, SectionTitle, ChapterNum*)</div>
+</section>
+</div>
+</button>
+</div>
+
+<!-- 10 Optionality -->
+<div class="card-wrap" data-card="10">
+<button class="flip-button" aria-expanded="false" aria-label="Card 10 Optionality. Press Enter or Space to flip.">
+<div class="card">
+<section class="face front">
+<div class="front-label">Front: Definition</div>
+<h2><span class="num">10</span>Optionality</h2>
+<p>Optionality indicates whether the relationship between two entities is required or optional.</p>
+<p><strong>Solid line = must / full participation.</strong><br><strong>Dashed line = may not / partial participation.</strong></p>
+<div class="diagram" aria-label="Solid and dashed lines comparing required and optional relationships.">
+<svg viewBox="0 0 430 150" role="img">
+<title>Optionality comparison</title>
+<text x="20" y="35" font-weight="700">Optional:</text><line x1="120" y1="30" x2="330" y2="30" class="rel dash"/>
+<text x="20" y="95" font-weight="700">Required:</text><line x1="120" y1="90" x2="330" y2="90" class="rel"/>
+</svg>
+</div>
+</section>
+<section class="face back">
+<div class="back-label">Back: Example</div>
+<h2>Student and Enrollment</h2>
+<ul><li><strong>Optional:</strong> A Student may have an Enrollment record or may have none.</li><li><strong>Required:</strong> Each Enrollment must belong to one Student.</li></ul>
+<div class="keypoint">Read the line first: solid means required/full participation; dashed means optional/partial participation.</div>
+</section>
+</div>
+</button>
+</div>
+
+</div>
+
+<section class="legend" aria-labelledby="legend-title">
+<h2 id="legend-title">Quick Legend</h2>
+<ul>
+<li><strong>Solid line:</strong> required / must / full participation.</li>
+<li><strong>Dashed line:</strong> optional / may not / partial participation.</li>
+<li><strong>| Single toe:</strong> one.</li>
+<li><strong>Crow's foot:</strong> many.</li>
+<li><strong>M:N:</strong> use a junction or associative table.</li>
+</ul>
+</section>
+
+<footer>
+<strong>Accessibility features:</strong> keyboard controls, button-based cards, visible focus outline, screen reader announcements, reduced-motion support, high contrast, and text alternatives for every diagram.
+</footer>
+</main>
+
+<script>
+const viewed = new Set();
+const total = document.querySelectorAll('.card-wrap').length;
+const progressText = document.getElementById('progressText');
+const progressBar = document.getElementById('progressBar');
+const announce = document.getElementById('announce');
+
+function updateProgress(cardNum, title, flipped){
+  if(flipped) viewed.add(cardNum);
+  progressText.textContent = `${viewed.size} of ${total} cards viewed`;
+  progressBar.value = viewed.size;
+  progressBar.max = total;
+  announce.textContent = `Card ${cardNum} ${title} ${flipped ? 'showing example side' : 'showing definition side'}. ${viewed.size} of ${total} cards viewed.`;
+}
+
+document.querySelectorAll('.card-wrap').forEach((wrap)=>{
+  const btn = wrap.querySelector('.flip-button');
+  const title = wrap.querySelector('h2').innerText.replace(/\s+/g,' ');
+  btn.addEventListener('click',()=>{
+    const flipped = wrap.classList.toggle('flipped');
+    btn.setAttribute('aria-expanded', flipped ? 'true' : 'false');
+    updateProgress(wrap.dataset.card, title, flipped);
+  });
+  btn.addEventListener('keydown',(e)=>{
+    if(e.key === 'Enter' || e.key === ' '){
+      e.preventDefault();
+      btn.click();
+    }
+  });
+});
+
+document.getElementById('resetBtn').addEventListener('click',()=>{
+  viewed.clear();
+  document.querySelectorAll('.card-wrap').forEach(wrap=>{
+    wrap.classList.remove('flipped');
+    wrap.querySelector('.flip-button').setAttribute('aria-expanded','false');
+  });
+  progressText.textContent = `0 of ${total} cards viewed`;
+  progressBar.value = 0;
+  announce.textContent = 'Progress reset. All cards are showing the definition side.';
+});
+</script>
+</body>
+</html>
