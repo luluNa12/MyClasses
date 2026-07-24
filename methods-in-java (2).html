@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Methods in Java — Interactive Lesson</title>
+<meta name="description" content="An interactive, accessible lesson on Java methods: anatomy, parameters, return values, and hands-on building.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+  /* ============ DESIGN TOKENS ============ */
+  :root{
+    --bg: #14181D;
+    --panel: #1E252C;
+    --panel-2: #262F38;
+    --panel-3: #2E3944;
+    --hairline: #3A4550;
+    --text: #EDEFF2;
+    --text-dim: #A7B2BC;
+    --text-faint: #79838D;
+
+    --amber: #E8A54A;     /* return values / output */
+    --amber-ink: #4A2E0B;
+    --teal: #4FB6A6;      /* parameters / input */
+    --teal-ink: #0C332C;
+    --violet: #9C89E8;    /* keywords / names */
+    --violet-ink: #241C4C;
+    --rose: #E8748A;      /* errors — always paired with icon/text, never color alone */
+
+    --success-bg: #12332B;
+    --success-fg: #6FDAB8;
+    --error-bg: #3A1E22;
+    --error-fg: #F2A6B2;
+
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+
+    --font-display: 'Space Grotesk', 'Segoe UI', sans-serif;
+    --font-body: 'Inter', 'Segoe UI', sans-serif;
+    --font-mono: 'JetBrains Mono', 'Consolas', monospace;
+
+    --maxw: 1040px;
+  }
+
+  *{ box-sizing: border-box; }
+  html{ scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior: auto; }
+    *{ animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+  }
+
+  body{
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    font-size: 17px;
+  }
+
+  h1, h2, h3, h4{
+    font-family: var(--font-display);
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0 0 .5em;
+    color: var(--text);
+  }
+  h2{ font-size: clamp(1.5rem, 1.1rem + 1.4vw, 2.1rem); }
+  h3{ font-size: 1.25rem; }
+  p{ margin: 0 0 1em; color: var(--text-dim); }
+  code, .mono{ font-family: var(--font-mono); }
+
+  a{ color: var(--teal); }
+  a:focus-visible, button:focus-visible, [tabindex]:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible{
+    outline: 3px solid var(--amber);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Skip link */
+  .skip-link{
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    background: var(--amber);
+    color: #1B1206;
+    padding: .75em 1.25em;
+    font-weight: 700;
+    z-index: 1000;
+    border-radius: 0 0 8px 0;
+  }
+  .skip-link:focus{ left: 0; }
+
+  .wrap{ max-width: var(--maxw); margin: 0 auto; padding: 0 1.5rem; }
+
+  /* ============ HEADER / NAV ============ */
+  header.site-header{
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(20,24,29,0.92);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--hairline);
+  }
+  .header-inner{
+    max-width: var(--maxw); margin: 0 auto; padding: .85rem 1.5rem;
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  }
+  .brand{ display:flex; align-items:center; gap:.6rem; font-family: var(--font-display); font-weight:700; font-size:1.05rem; }
+  .brand .dot{ width:10px; height:10px; border-radius:50%; background: var(--teal); }
+
+  nav.progress-nav ol{
+    list-style: none; display:flex; gap:.4rem; margin:0; padding:0; flex-wrap: wrap;
+  }
+  nav.progress-nav a{
+    display:flex; align-items:center; gap:.4rem;
+    text-decoration:none; color: var(--text-dim);
+    font-size:.85rem; padding:.4rem .65rem; border-radius: 999px;
+    border: 1px solid var(--hairline);
+  }
+  nav.progress-nav a .step-num{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:1.3em; height:1.3em; border-radius:50%; background: var(--panel-3);
+    font-size:.75em; font-family: var(--font-mono); color: var(--text);
+  }
+  nav.progress-nav a[aria-current="true"]{ border-color: var(--amber); color: var(--text); }
+  nav.progress-nav a[aria-current="true"] .step-num{ background: var(--amber); color:#1B1206; }
+  nav.progress-nav a.done .step-num{ background: var(--teal); color:#06211C; }
+  nav.progress-nav a.done .step-num::after{ content:"✓"; }
+
+  /* ============ HERO ============ */
+  .hero{ padding: 3.5rem 0 2.5rem; }
+  .hero .eyebrow{
+    font-family: var(--font-mono); font-size:.8rem; letter-spacing:.08em; text-transform:uppercase;
+    color: var(--teal); margin-bottom:.75rem; display:block;
+  }
+  .hero h1{ font-size: clamp(2rem, 1.4rem + 3vw, 3.2rem); max-width: 16ch; }
+  .hero .lede{ max-width: 56ch; font-size: 1.05rem; }
+
+  .signature{
+    margin-top: 2.25rem;
+    background: var(--panel);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    overflow-x: auto;
+  }
+  .signature-label{ font-size:.8rem; color: var(--text-faint); margin-bottom:.75rem; font-family: var(--font-mono);}
+  .token-line{
+    font-family: var(--font-mono); font-size: clamp(1rem, .85rem + .6vw, 1.4rem);
+    display:flex; flex-wrap:wrap; align-items:baseline; gap:.15em; white-space: pre;
+  }
+  .token{
+    background: transparent; border: 1px dashed transparent; color: var(--text);
+    cursor: pointer; padding: .1em .25em; border-radius: 5px; font: inherit;
+  }
+  .token:hover, .token:focus-visible{ border-color: var(--hairline); background: var(--panel-2); }
+  .token[aria-pressed="true"]{ background: var(--panel-3); border-color: var(--hairline); }
+  .token.tk-modifier{ color: var(--violet); }
+  .token.tk-return{ color: var(--amber); }
+  .token.tk-name{ color: var(--text); font-weight:700; }
+  .token.tk-param{ color: var(--teal); }
+  .token.tk-punct{ color: var(--text-faint); cursor: default; }
+
+  .part-desc{
+    margin-top: 1.25rem; padding: 1rem 1.1rem;
+    background: var(--panel-2); border-left: 4px solid var(--hairline);
+    border-radius: var(--radius-sm);
+    min-height: 4.5em;
+  }
+  .part-desc .part-title{ font-family: var(--font-display); font-weight:700; margin-bottom:.25rem; display:block; }
+  .part-desc[data-active="modifier"]{ border-left-color: var(--violet); }
+  .part-desc[data-active="return"]{ border-left-color: var(--amber); }
+  .part-desc[data-active="name"]{ border-left-color: var(--text-dim); }
+  .part-desc[data-active="param"]{ border-left-color: var(--teal); }
+
+  /* ============ SECTIONS GENERIC ============ */
+  section{ padding: 3rem 0; border-top: 1px solid var(--hairline); }
+  section:first-of-type{ border-top: none; }
+  .section-kicker{ font-family: var(--font-mono); font-size:.78rem; text-transform:uppercase; letter-spacing:.08em; color: var(--text-faint); }
+
+  /* ============ CARDS: 4 method types ============ */
+  .type-tabs{ display:flex; gap:.5rem; flex-wrap:wrap; margin: 1.5rem 0 1.25rem; }
+  .type-tab{
+    font: inherit; font-family: var(--font-body); font-weight:600; font-size:.92rem;
+    background: var(--panel); color: var(--text-dim); border:1px solid var(--hairline);
+    padding: .65rem 1rem; border-radius: 999px; cursor:pointer;
+    display:flex; align-items:center; gap:.5rem;
+  }
+  .type-tab .swatch{ width:.6rem; height:.6rem; border-radius:50%; }
+  .type-tab[aria-selected="true"]{ background: var(--panel-3); color: var(--text); border-color: var(--text-dim); }
+
+  .type-panel{
+    background: var(--panel); border:1px solid var(--hairline); border-radius: var(--radius-lg);
+    padding: 1.75rem; display: grid; grid-template-columns: 1.1fr .9fr; gap: 1.75rem;
+  }
+  @media (max-width: 720px){ .type-panel{ grid-template-columns: 1fr; } }
+  .type-panel[hidden]{ display:none; }
+
+  .type-badges{ display:flex; gap:.5rem; margin-bottom:.75rem; flex-wrap:wrap; }
+  .badge{
+    font-family: var(--font-mono); font-size:.72rem; padding:.25em .6em; border-radius:5px;
+    border:1px solid var(--hairline); color: var(--text-dim);
+  }
+  .badge.on-param{ color: var(--teal); border-color: var(--teal); }
+  .badge.on-return{ color: var(--amber); border-color: var(--amber); }
+
+  pre.code-block{
+    background: #10151A; border:1px solid var(--hairline); border-radius: var(--radius-md);
+    padding: 1rem 1.1rem; overflow-x:auto; font-family: var(--font-mono); font-size:.92rem;
+    color: var(--text); margin: 0 0 1rem;
+  }
+  pre.code-block .c-mod{ color: var(--violet); }
+  pre.code-block .c-ret{ color: var(--amber); }
+  pre.code-block .c-name{ color: #fff; font-weight:700; }
+  pre.code-block .c-param{ color: var(--teal); }
+  pre.code-block .c-cmt{ color: var(--text-faint); font-style: italic; }
+  pre.code-block .c-kw { color: #7AA2F7; }
+
+  .demo-col button.run-btn{
+    font: inherit; font-weight:700; background: var(--amber); color:#1B1206; border:none;
+    padding: .65rem 1.2rem; border-radius: 999px; cursor:pointer; font-family: var(--font-body);
+  }
+  .demo-col button.run-btn:hover{ filter: brightness(1.08); }
+  .console{
+    margin-top: 1rem; background:#0B0F13; border:1px solid var(--hairline); border-radius: var(--radius-md);
+    padding: .9rem 1rem; font-family: var(--font-mono); font-size:.88rem; min-height: 3.2em; color: var(--success-fg);
+  }
+  .console .console-prompt{ color: var(--text-faint); }
+  label{ display:block; font-size:.85rem; color: var(--text-dim); margin-bottom:.3rem; font-weight:600; }
+  input[type="number"], input[type="text"], select, textarea{
+    font: inherit; font-family: var(--font-mono); background: var(--panel-2); color: var(--text);
+    border:1px solid var(--hairline); border-radius: var(--radius-sm); padding:.55rem .7rem; width: 100%;
+  }
+  .field{ margin-bottom: .9rem; }
+
+  /* ============ BUILDER ============ */
+  .builder{
+    background: var(--panel); border:1px solid var(--hairline); border-radius: var(--radius-lg);
+    padding: 1.75rem; display:grid; grid-template-columns: 1fr 1fr; gap: 2rem;
+  }
+  @media (max-width: 780px){ .builder{ grid-template-columns: 1fr; } }
+  fieldset{ border: 1px solid var(--hairline); border-radius: var(--radius-md); padding: 1rem 1.1rem 1.2rem; margin: 0 0 1rem; }
+  legend{ font-family: var(--font-display); font-weight:700; padding: 0 .4rem; }
+  .row2{ display:grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+  .param-row{ display:grid; grid-template-columns: 1fr 1.4fr auto; gap:.5rem; align-items:end; margin-bottom:.6rem; }
+  .icon-btn{
+    background: var(--panel-3); color: var(--text); border:1px solid var(--hairline); border-radius: var(--radius-sm);
+    width: 2.4rem; height: 2.4rem; cursor:pointer; font-size:1rem; font: inherit;
+  }
+  .icon-btn:hover{ background: var(--panel-2); }
+  .btn-secondary{
+    font: inherit; font-weight:600; background: transparent; color: var(--teal); border:1px solid var(--teal);
+    padding:.5rem .9rem; border-radius: 999px; cursor:pointer;
+  }
+  .btn-primary{
+    font: inherit; font-weight:700; background: var(--teal); color:#06211C; border:none;
+    padding:.65rem 1.2rem; border-radius: 999px; cursor:pointer;
+  }
+  .feedback-box{
+    border-radius: var(--radius-md); padding: .9rem 1rem; margin-top:1rem; display:none; gap:.6rem;
+    align-items:flex-start; font-size:.92rem;
+  }
+  .feedback-box.show{ display:flex; }
+  .feedback-box.ok{ background: var(--success-bg); color: var(--success-fg); border:1px solid var(--success-fg); }
+  .feedback-box.err{ background: var(--error-bg); color: var(--error-fg); border:1px solid var(--error-fg); }
+  .feedback-box .fb-icon{ font-weight:900; font-size:1.1rem; line-height:1; }
+
+  /* ============ CALL STACK ============ */
+  .stack-demo{
+    background: var(--panel); border:1px solid var(--hairline); border-radius: var(--radius-lg); padding: 1.75rem;
+  }
+  .stack-visual{
+    display:flex; flex-direction: column-reverse; gap:.6rem; min-height: 9rem;
+    border: 1px dashed var(--hairline); border-radius: var(--radius-md); padding: 1rem; margin-top:1rem;
+    justify-content: flex-start;
+  }
+  .stack-frame{
+    background: var(--panel-3); border:1px solid var(--teal); border-left: 5px solid var(--teal);
+    border-radius: var(--radius-sm); padding:.6rem .8rem; font-family: var(--font-mono); font-size:.85rem;
+    opacity: 0; transform: translateY(8px); animation: frame-in .35s ease forwards;
+  }
+  .stack-frame.returning{ border-color: var(--amber); border-left-color: var(--amber); }
+  @keyframes frame-in{ to{ opacity:1; transform: translateY(0); } }
+  .stack-base{
+    font-family: var(--font-mono); font-size:.8rem; color: var(--text-faint); text-align:center; padding-top:.4rem;
+  }
+
+  /* ============ QUIZ ============ */
+  .quiz-card{
+    background: var(--panel); border:1px solid var(--hairline); border-radius: var(--radius-lg);
+    padding: 1.5rem 1.75rem; margin-bottom: 1.25rem;
+  }
+  .quiz-card h3{ margin-bottom: .9rem; }
+  .quiz-options{ display:grid; gap:.6rem; margin-bottom: 1rem; }
+  .quiz-option{
+    display:flex; align-items:flex-start; gap:.65rem; background: var(--panel-2); border:1px solid var(--hairline);
+    border-radius: var(--radius-md); padding:.7rem .9rem; cursor:pointer;
+  }
+  .quiz-option input{ margin-top: .25rem; width:auto; }
+  .quiz-option:has(input:checked){ border-color: var(--teal); }
+  .quiz-score{
+    position: sticky; bottom: 1rem; background: var(--panel-3); border:1px solid var(--hairline);
+    border-radius: 999px; padding:.6rem 1.1rem; display:inline-flex; gap:.6rem; align-items:center;
+    font-family: var(--font-mono); font-size:.85rem; margin-top: .5rem;
+  }
+  .results-panel{
+    margin-top: 1.5rem; background: var(--panel); border: 1px solid var(--amber); border-radius: var(--radius-lg);
+    padding: 1.5rem 1.75rem;
+  }
+  .results-panel .results-points{ font-family: var(--font-mono); font-size: 1.15rem; color: var(--amber); font-weight: 700; }
+  .quiz-option.locked{ opacity: .7; cursor: default; }
+  .check-btn[disabled]{ opacity:.5; cursor:not-allowed; }
+
+  /* ============ SUMMARY / FOOTER ============ */
+  .recap-grid{ display:grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-top:1.25rem; }
+  @media (max-width: 640px){ .recap-grid{ grid-template-columns: 1fr; } }
+  .recap-card{
+    background: var(--panel); border:1px solid var(--hairline); border-radius: var(--radius-md); padding: 1.1rem 1.25rem;
+  }
+  .recap-card .num{ font-family: var(--font-mono); color: var(--text-faint); font-size:.8rem; }
+
+  footer.site-footer{
+    border-top: 1px solid var(--hairline); padding: 2.5rem 0; color: var(--text-faint); font-size:.85rem;
+  }
+
+  .visually-hidden{
+    position:absolute !important; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; padding:0; margin:-1px;
+  }
+
+  ::selection{ background: var(--amber); color:#1B1206; }
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="brand"><span class="dot" aria-hidden="true"></span> Methods in Java</div>
+    <nav class="progress-nav" aria-label="Lesson sections">
+      <ol id="progress-list">
+        <li><a href="#anatomy" data-step="1"><span class="step-num">1</span> Anatomy</a></li>
+        <li><a href="#types" data-step="2"><span class="step-num">2</span> Four Types</a></li>
+        <li><a href="#builder" data-step="3"><span class="step-num">3</span> Build One</a></li>
+        <li><a href="#stack" data-step="4"><span class="step-num">4</span> Call Stack</a></li>
+        <li><a href="#quiz" data-step="5"><span class="step-num">5</span> Quiz</a></li>
+      </ol>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero" aria-labelledby="hero-heading">
+    <div class="wrap">
+      <span class="eyebrow">CIS 101 · Introduction to Java</span>
+      <h1 id="hero-heading">Methods are how a program gets things done.</h1>
+      <p class="lede">A method is a named, reusable block of code. Some methods take information in through <strong style="color:var(--teal)">parameters</strong>, some hand information back out through a <strong style="color:var(--amber)">return value</strong> — and some do neither, or both. By the end of this lesson you'll be able to write all four combinations from scratch.</p>
+
+      <div class="signature">
+        <span class="signature-label">// click or tab through each part of this method</span>
+        <div class="token-line" role="group" aria-label="Interactive Java method signature. Select a part to learn what it does.">
+          <button class="token tk-modifier" data-part="modifier" aria-pressed="false">public</button>
+          <button class="token tk-return" data-part="return" aria-pressed="false">int</button>
+          <button class="token tk-name" data-part="name" aria-pressed="false">addNumbers</button>
+          <span class="token tk-punct">(</span>
+          <button class="token tk-param" data-part="param" aria-pressed="false">int a, int b</button>
+          <span class="token tk-punct">) {</span>
+          <span class="token tk-punct" style="margin-left:.4em;">…</span>
+          <span class="token tk-punct">}</span>
+        </div>
+        <div class="part-desc" id="part-desc" aria-live="polite">
+          <span class="part-title">Tip</span>
+          Select any highlighted word above (mouse click or Tab + Enter) to see what that piece of the method does.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ANATOMY ============ -->
+  <section id="anatomy" aria-labelledby="anatomy-heading">
+    <div class="wrap">
+      <span class="section-kicker">Step 1</span>
+      <h2 id="anatomy-heading">The five parts of a method</h2>
+      <p style="max-width:62ch">Every Java method is built from the same five ingredients. Change any one of them and you change what the method can do.</p>
+
+      <div class="recap-grid" role="list" style="margin-top:1.5rem;">
+        <div class="recap-card" role="listitem">
+          <span class="num">01</span>
+          <h3 style="color:var(--violet)">Access modifier</h3>
+          <p>Controls who can call the method. In this course we'll mostly use <code>public</code>.</p>
+        </div>
+        <div class="recap-card" role="listitem">
+          <span class="num">02</span>
+          <h3 style="color:var(--amber)">Return type</h3>
+          <p><code>void</code> means "gives nothing back." Any other type — <code>int</code>, <code>double</code>, <code>String</code> — means the method must hand back a value of that type.</p>
+        </div>
+        <div class="recap-card" role="listitem">
+          <span class="num">03</span>
+          <h3>Method name</h3>
+          <p>A verb-style name written in <code>camelCase</code>, like <code>calculateTotal</code> or <code>printReceipt</code>.</p>
+        </div>
+        <div class="recap-card" role="listitem">
+          <span class="num">04</span>
+          <h3 style="color:var(--teal)">Parameter list</h3>
+          <p>The inputs the method needs, written as <code>type name</code> pairs inside parentheses. Empty parentheses mean no input is needed.</p>
+        </div>
+        <div class="recap-card" role="listitem">
+          <span class="num">05</span>
+          <h3>Method body</h3>
+          <p>The statements between <code>{ }</code> that actually do the work — and the <code>return</code> statement, if one is required.</p>
+        </div>
+        <div class="recap-card" role="listitem" style="border-color:var(--hairline); background:var(--panel-2);">
+          <span class="num">RULE</span>
+          <h3>The one rule that matters most</h3>
+          <p>If the return type is <em>not</em> <code>void</code>, every path through the method must end in a <code>return</code> statement that produces a value of that exact type.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOUR TYPES ============ -->
+  <section id="types" aria-labelledby="types-heading">
+    <div class="wrap">
+      <span class="section-kicker">Step 2</span>
+      <h2 id="types-heading">Four flavors of methods</h2>
+      <p style="max-width:62ch">Parameters and return values are independent choices — so together they create four combinations. Explore each one, then press Run to see it execute.</p>
+
+      <div class="type-tabs" role="tablist" aria-label="Method type examples">
+        <button class="type-tab" role="tab" id="tab-1" aria-controls="panel-1" aria-selected="true">
+          <span class="swatch" style="background:var(--text-faint)" aria-hidden="true"></span> No param · No return
+        </button>
+        <button class="type-tab" role="tab" id="tab-2" aria-controls="panel-2" aria-selected="false" tabindex="-1">
+          <span class="swatch" style="background:var(--teal)" aria-hidden="true"></span> One param · No return
+        </button>
+        <button class="type-tab" role="tab" id="tab-3" aria-controls="panel-3" aria-selected="false" tabindex="-1">
+          <span class="swatch" style="background:var(--amber)" aria-hidden="true"></span> No param · Returns value
+        </button>
+        <button class="type-tab" role="tab" id="tab-4" aria-controls="panel-4" aria-selected="false" tabindex="-1">
+          <span class="swatch" style="background:linear-gradient(90deg,var(--teal),var(--amber))" aria-hidden="true"></span> One param · Returns value
+        </button>
+      </div>
+
+      <!-- PANEL 1 -->
+      <div class="type-panel" role="tabpanel" id="panel-1" aria-labelledby="tab-1" tabindex="0">
+        <div>
+          <div class="type-badges"><span class="badge">no parameters</span><span class="badge">void — no return</span></div>
+          <pre class="code-block"><span class="c-mod">public</span> <span class="c-ret">void</span> <span class="c-name">printWelcome</span>() {
+    System.out.println(<span class="c-kw">"Welcome to Java!"</span>);
+}</pre>
+          <p>This method needs nothing from the caller and gives nothing back — it just performs an action. Think of it like a light switch: you flip it, something happens, and that's the whole interaction.</p>
+        </div>
+        <div class="demo-col">
+          <p style="margin-bottom:.6rem;"><strong>Try it:</strong> call <code>printWelcome();</code></p>
+          <button class="run-btn" data-demo="1">▶ Run printWelcome()</button>
+          <div class="console" id="console-1" aria-live="polite"><span class="console-prompt">&gt; </span><span class="out"></span></div>
+        </div>
+      </div>
+
+      <!-- PANEL 2 -->
+      <div class="type-panel" role="tabpanel" id="panel-2" aria-labelledby="tab-2" hidden tabindex="0">
+        <div>
+          <div class="type-badges"><span class="badge on-param">one parameter</span><span class="badge">void — no return</span></div>
+          <pre class="code-block"><span class="c-mod">public</span> <span class="c-ret">void</span> <span class="c-name">greetUser</span>(<span class="c-param">String name</span>) {
+    System.out.println(<span class="c-kw">"Hello, "</span> + name + <span class="c-kw">"!"</span>);
+}</pre>
+          <p>This method needs one piece of input — a <code>String</code> called <code>name</code> — to do its job, but it still gives nothing back to the caller.</p>
+        </div>
+        <div class="demo-col">
+          <div class="field">
+            <label for="input-2">name (String)</label>
+            <input type="text" id="input-2" value="Ava" maxlength="20">
+          </div>
+          <button class="run-btn" data-demo="2">▶ Run greetUser(name)</button>
+          <div class="console" id="console-2" aria-live="polite"><span class="console-prompt">&gt; </span><span class="out"></span></div>
+        </div>
+      </div>
+
+      <!-- PANEL 3 -->
+      <div class="type-panel" role="tabpanel" id="panel-3" aria-labelledby="tab-3" hidden tabindex="0">
+        <div>
+          <div class="type-badges"><span class="badge">no parameters</span><span class="badge on-return">returns a value</span></div>
+          <pre class="code-block"><span class="c-mod">public</span> <span class="c-ret">String</span> <span class="c-name">getCourseName</span>() {
+    <span class="c-kw">return</span> <span class="c-kw">"Intro to Java"</span>;
+}</pre>
+          <p>No input is required, but this method must hand back a <code>String</code>. The caller can store that result, print it, or use it in another expression.</p>
+        </div>
+        <div class="demo-col">
+          <p style="margin-bottom:.6rem;"><strong>Try it:</strong> <code>String course = getCourseName();</code></p>
+          <button class="run-btn" data-demo="3">▶ Run getCourseName()</button>
+          <div class="console" id="console-3" aria-live="polite"><span class="console-prompt">&gt; </span><span class="out"></span></div>
+        </div>
+      </div>
+
+      <!-- PANEL 4 -->
+      <div class="type-panel" role="tabpanel" id="panel-4" aria-labelledby="tab-4" hidden tabindex="0">
+        <div>
+          <div class="type-badges"><span class="badge on-param">one parameter</span><span class="badge on-return">returns a value</span></div>
+          <pre class="code-block"><span class="c-mod">public</span> <span class="c-ret">int</span> <span class="c-name">square</span>(<span class="c-param">int n</span>) {
+    <span class="c-kw">return</span> n * n;
+}</pre>
+          <p>This is the most powerful combination: the method accepts input <em>and</em> produces output, so it behaves like a real function — input goes in, a value comes out.</p>
+        </div>
+        <div class="demo-col">
+          <div class="field">
+            <label for="input-4">n (int)</label>
+            <input type="number" id="input-4" value="7" min="-1000" max="1000">
+          </div>
+          <button class="run-btn" data-demo="4">▶ Run square(n)</button>
+          <div class="console" id="console-4" aria-live="polite"><span class="console-prompt">&gt; </span><span class="out"></span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BUILDER ============ -->
+  <section id="builder" aria-labelledby="builder-heading">
+    <div class="wrap">
+      <span class="section-kicker">Step 3</span>
+      <h2 id="builder-heading">Build your own method</h2>
+      <p style="max-width:62ch">Choose a return type and add up to two parameters. We'll assemble the signature for you and simulate calling it, so you can see how your choices change the method's behavior.</p>
+
+      <div class="builder">
+        <form id="builder-form">
+          <fieldset>
+            <legend>Signature</legend>
+            <div class="row2">
+              <div class="field">
+                <label for="b-return">Return type</label>
+                <select id="b-return">
+                  <option value="void">void (no return value)</option>
+                  <option value="int">int</option>
+                  <option value="double">double</option>
+                  <option value="String">String</option>
+                  <option value="boolean">boolean</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="b-name">Method name</label>
+                <input type="text" id="b-name" value="calculateTotal" pattern="[a-z][A-Za-z0-9]*" aria-describedby="b-name-hint">
+              </div>
+            </div>
+            <p id="b-name-hint" style="font-size:.8rem; margin:-.4rem 0 0; color:var(--text-faint);">Use camelCase, starting with a lowercase letter.</p>
+          </fieldset>
+
+          <fieldset>
+            <legend>Parameters</legend>
+            <div id="param-list"></div>
+            <button type="button" class="btn-secondary" id="add-param">+ Add parameter</button>
+          </fieldset>
+
+          <fieldset>
+            <legend>Method body</legend>
+            <label for="b-body">What should this method do or return?</label>
+            <textarea id="b-body" rows="3">return price * quantity;</textarea>
+          </fieldset>
+
+          <button type="submit" class="btn-primary">Build &amp; check method</button>
+          <div class="feedback-box" id="builder-feedback" role="status"></div>
+        </form>
+
+        <div>
+          <h3 style="margin-bottom:.6rem;">Generated code</h3>
+          <pre class="code-block" id="builder-output"><span class="c-cmt">// your method will appear here</span></pre>
+          <h3 style="margin:1.25rem 0 .6rem;">Simulated call</h3>
+          <div class="console" id="builder-console" aria-live="polite"><span class="console-prompt">&gt; </span><span class="out">Build a method to see it run.</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CALL STACK ============ -->
+  <section id="stack" aria-labelledby="stack-heading">
+    <div class="wrap">
+      <span class="section-kicker">Step 4</span>
+      <h2 id="stack-heading">What happens when a method is called</h2>
+      <p style="max-width:62ch">When <code>main</code> calls <code>square(n)</code>, Java pauses <code>main</code>, opens a new frame for <code>square</code>, runs its body, and — because the return type isn't <code>void</code> — sends a value back before removing that frame. Press the button to watch it happen.</p>
+
+      <div class="stack-demo">
+        <button class="run-btn" id="stack-run">▶ Call square(6) from main()</button>
+        <div class="stack-visual" id="stack-visual" aria-live="polite" aria-label="Call stack visualization">
+          <p class="stack-base" style="grid-column:1;">Call stack is empty — press the button above to begin.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section id="quiz" aria-labelledby="quiz-heading">
+    <div class="wrap">
+      <span class="section-kicker">Step 5</span>
+      <h2 id="quiz-heading">Quick check</h2>
+      <p style="max-width:62ch">Four questions, one attempt each. Pick an answer and press "Check answer" — once you check a question, that question locks so choose carefully.</p>
+
+      <div class="field" style="max-width:22rem; margin-bottom:1.75rem;">
+        <label for="student-name">Your name</label>
+        <input type="text" id="student-name" placeholder="e.g. Ava Torres" autocomplete="name" aria-describedby="name-hint">
+        <p id="name-hint" style="font-size:.8rem; margin:.35rem 0 0; color:var(--text-faint);">Enter your name before you begin — it will appear with your results below.</p>
+      </div>
+
+      <form id="quiz-form">
+        <div class="quiz-card">
+          <h3>1. Which method signature takes one parameter and returns no value?</h3>
+          <div class="quiz-options" role="radiogroup" aria-label="Question 1 options">
+            <label class="quiz-option"><input type="radio" name="q1" value="a"> <span><code>public void logMessage(String msg)</code></span></label>
+            <label class="quiz-option"><input type="radio" name="q1" value="b"> <span><code>public String logMessage()</code></span></label>
+            <label class="quiz-option"><input type="radio" name="q1" value="c"> <span><code>public int logMessage(String msg)</code></span></label>
+          </div>
+          <button type="button" class="btn-secondary check-btn" data-q="1" data-correct="a">Check answer</button>
+          <div class="feedback-box" id="fb-1" role="status"></div>
+        </div>
+
+        <div class="quiz-card">
+          <h3>2. A method declared as <code>public double average(int a, int b)</code> must:</h3>
+          <div class="quiz-options" role="radiogroup" aria-label="Question 2 options">
+            <label class="quiz-option"><input type="radio" name="q2" value="a"> <span>Print a double to the console before ending</span></label>
+            <label class="quiz-option"><input type="radio" name="q2" value="b"> <span>End every path with a <code>return</code> that produces a <code>double</code></span></label>
+            <label class="quiz-option"><input type="radio" name="q2" value="c"> <span>Take zero parameters</span></label>
+          </div>
+          <button type="button" class="btn-secondary check-btn" data-q="2" data-correct="b">Check answer</button>
+          <div class="feedback-box" id="fb-2" role="status"></div>
+        </div>
+
+        <div class="quiz-card">
+          <h3>3. Which line correctly calls a no-parameter method named <code>getScore</code> that returns an <code>int</code>, storing the result?</h3>
+          <div class="quiz-options" role="radiogroup" aria-label="Question 3 options">
+            <label class="quiz-option"><input type="radio" name="q3" value="a"> <span><code>int score = getScore;</code></span></label>
+            <label class="quiz-option"><input type="radio" name="q3" value="b"> <span><code>int score = getScore();</code></span></label>
+            <label class="quiz-option"><input type="radio" name="q3" value="c"> <span><code>void score = getScore();</code></span></label>
+          </div>
+          <button type="button" class="btn-secondary check-btn" data-q="3" data-correct="b">Check answer</button>
+          <div class="feedback-box" id="fb-3" role="status"></div>
+        </div>
+
+        <div class="quiz-card">
+          <h3>4. <code>public void printReceipt()</code> is best described as:</h3>
+          <div class="quiz-options" role="radiogroup" aria-label="Question 4 options">
+            <label class="quiz-option"><input type="radio" name="q4" value="a"> <span>No parameters, no return value</span></label>
+            <label class="quiz-option"><input type="radio" name="q4" value="b"> <span>One parameter, returns a value</span></label>
+            <label class="quiz-option"><input type="radio" name="q4" value="c"> <span>No parameters, returns a value</span></label>
+          </div>
+          <button type="button" class="btn-secondary check-btn" data-q="4" data-correct="a">Check answer</button>
+          <div class="feedback-box" id="fb-4" role="status"></div>
+        </div>
+      </form>
+
+      <div class="quiz-score" id="quiz-score" aria-live="polite">Answered: <span id="answered-val">0</span> / 4</div>
+
+      <div class="results-panel" id="results-panel" hidden aria-live="polite">
+        <h3 style="margin-bottom:.4rem;">Results</h3>
+        <p style="margin-bottom:.25rem;"><strong id="results-name">—</strong></p>
+        <p class="results-points">Score: <span id="results-score">0</span> / 4 points</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SUMMARY ============ -->
+  <section id="summary" aria-labelledby="summary-heading">
+    <div class="wrap">
+      <span class="section-kicker">Recap</span>
+      <h2 id="summary-heading">Cheat sheet</h2>
+      <div class="recap-grid">
+        <div class="recap-card"><span class="num">TYPE A</span><h3>No param · No return</h3><p class="mono" style="color:var(--text-dim)">void printWelcome()</p></div>
+        <div class="recap-card"><span class="num">TYPE B</span><h3>One param · No return</h3><p class="mono" style="color:var(--text-dim)">void greetUser(String name)</p></div>
+        <div class="recap-card"><span class="num">TYPE C</span><h3>No param · Returns value</h3><p class="mono" style="color:var(--text-dim)">String getCourseName()</p></div>
+        <div class="recap-card"><span class="num">TYPE D</span><h3>One param · Returns value</h3><p class="mono" style="color:var(--text-dim)">int square(int n)</p></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Methods in Java — Interactive Lesson. Built for an introductory community college Java course. Keyboard, screen-reader, and reduced-motion friendly.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- Progress nav highlighting ---------- */
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.progress-nav a'));
+  var sections = navLinks.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+
+  function updateProgress(){
+    var scrollPos = window.scrollY + 140;
+    var activeIdx = -1;
+    sections.forEach(function(sec, i){
+      if(sec && sec.offsetTop <= scrollPos) activeIdx = i;
+    });
+    navLinks.forEach(function(a, i){
+      a.removeAttribute('aria-current');
+      a.classList.remove('done');
+      if(i === activeIdx) a.setAttribute('aria-current','true');
+      else if(i < activeIdx) a.classList.add('done');
+    });
+  }
+  document.addEventListener('scroll', updateProgress, { passive:true });
+  updateProgress();
+
+  /* ---------- Hero token explainer ---------- */
+  var tokens = document.querySelectorAll('.token[data-part]');
+  var descBox = document.getElementById('part-desc');
+  var descriptions = {
+    modifier: { title: "Access modifier — public", text: "Determines which other code is allowed to call this method. \"public\" means any class can call it." },
+    'return': { title: "Return type — int", text: "The type of value this method promises to hand back. Because it isn't \"void\", the method body must end with a matching return statement." },
+    name: { title: "Method name — addNumbers", text: "The label used to call this method elsewhere in the program, e.g. addNumbers(2, 3)." },
+    param: { title: "Parameter list — int a, int b", text: "The two pieces of input this method requires. Each parameter has a type and a name, separated by commas." }
+  };
+  tokens.forEach(function(tok){
+    tok.addEventListener('click', function(){
+      tokens.forEach(function(t){ t.setAttribute('aria-pressed','false'); });
+      tok.setAttribute('aria-pressed','true');
+      var part = tok.getAttribute('data-part');
+      var d = descriptions[part];
+      descBox.setAttribute('data-active', part);
+      descBox.innerHTML = '<span class="part-title">' + d.title + '</span>' + d.text;
+    });
+  });
+
+  /* ---------- Type tabs (ARIA tabs pattern) ---------- */
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
+  function selectTab(tab){
+    tabs.forEach(function(t){
+      var panel = document.getElementById(t.getAttribute('aria-controls'));
+      var selected = (t === tab);
+      t.setAttribute('aria-selected', selected ? 'true' : 'false');
+      t.tabIndex = selected ? 0 : -1;
+      if(panel) panel.hidden = !selected;
+    });
+    tab.focus();
+  }
+  tabs.forEach(function(tab, idx){
+    tab.addEventListener('click', function(){ selectTab(tab); });
+    tab.addEventListener('keydown', function(e){
+      var newIdx = null;
+      if(e.key === 'ArrowRight') newIdx = (idx + 1) % tabs.length;
+      else if(e.key === 'ArrowLeft') newIdx = (idx - 1 + tabs.length) % tabs.length;
+      else if(e.key === 'Home') newIdx = 0;
+      else if(e.key === 'End') newIdx = tabs.length - 1;
+      if(newIdx !== null){ e.preventDefault(); selectTab(tabs[newIdx]); }
+    });
+  });
+
+  /* ---------- Type demo "Run" buttons (simulated Java output) ---------- */
+  document.querySelectorAll('.run-btn[data-demo]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var demo = btn.getAttribute('data-demo');
+      var out = document.querySelector('#console-' + demo + ' .out');
+      if(demo === '1'){
+        out.textContent = 'Welcome to Java!';
+      } else if(demo === '2'){
+        var name = document.getElementById('input-2').value.trim() || 'friend';
+        out.textContent = 'Hello, ' + name + '!';
+      } else if(demo === '3'){
+        out.textContent = 'getCourseName() returned: "Intro to Java"';
+      } else if(demo === '4'){
+        var n = parseInt(document.getElementById('input-4').value, 10);
+        if(isNaN(n)) n = 0;
+        out.textContent = 'square(' + n + ') returned: ' + (n * n);
+      }
+    });
+  });
+
+  /* ---------- Builder ---------- */
+  var paramList = document.getElementById('param-list');
+  var paramCount = 0;
+
+  function addParamRow(type, name){
+    paramCount++;
+    var row = document.createElement('div');
+    row.className = 'param-row';
+    row.innerHTML =
+      '<div class="field" style="margin-bottom:0;">' +
+        '<label for="ptype-' + paramCount + '">Type</label>' +
+        '<select id="ptype-' + paramCount + '">' +
+          '<option value="int">int</option>' +
+          '<option value="double">double</option>' +
+          '<option value="String">String</option>' +
+          '<option value="boolean">boolean</option>' +
+        '</select>' +
+      '</div>' +
+      '<div class="field" style="margin-bottom:0;">' +
+        '<label for="pname-' + paramCount + '">Name</label>' +
+        '<input type="text" id="pname-' + paramCount + '" value="' + (name || 'value' + paramCount) + '">' +
+      '</div>' +
+      '<button type="button" class="icon-btn" aria-label="Remove this parameter">✕</button>';
+    row.querySelector('select').value = type || 'int';
+    row.querySelector('.icon-btn').addEventListener('click', function(){
+      row.remove();
+      var announcement = document.getElementById('builder-feedback');
+      announcement.className = 'feedback-box show ok';
+      announcement.innerHTML = '<span class="fb-icon" aria-hidden="true">✓</span><span>Parameter removed.</span>';
+    });
+    paramList.appendChild(row);
+  }
+  document.getElementById('add-param').addEventListener('click', function(){
+    if(paramList.children.length >= 3){
+      var fb = document.getElementById('builder-feedback');
+      fb.className = 'feedback-box show err';
+      fb.innerHTML = '<span class="fb-icon" aria-hidden="true">!</span><span>Error: this exercise supports up to 3 parameters. Remove one before adding another.</span>';
+      return;
+    }
+    addParamRow('int', 'value' + (paramCount + 1));
+  });
+  addParamRow('double', 'price');
+
+  var builderForm = document.getElementById('builder-form');
+  var builderOutput = document.getElementById('builder-output');
+  var builderFeedback = document.getElementById('builder-feedback');
+  var builderConsole = document.querySelector('#builder-console .out');
+
+  function escapeHtml(s){
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  builderForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    var returnType = document.getElementById('b-return').value;
+    var nameField = document.getElementById('b-name');
+    var methodName = nameField.value.trim();
+    var body = document.getElementById('b-body').value.trim();
+
+    var namePattern = /^[a-z][A-Za-z0-9]*$/;
+    if(!namePattern.test(methodName)){
+      builderFeedback.className = 'feedback-box show err';
+      builderFeedback.innerHTML = '<span class="fb-icon" aria-hidden="true">!</span><span>Error: method name must start with a lowercase letter and use only letters/numbers (camelCase). Try again.</span>';
+      nameField.focus();
+      return;
+    }
+
+    if(returnType !== 'void' && !/return/.test(body)){
+      builderFeedback.className = 'feedback-box show err';
+      builderFeedback.innerHTML = '<span class="fb-icon" aria-hidden="true">!</span><span>Error: return type is "' + returnType + '", so the method body must include a return statement.</span>';
+      return;
+    }
+    if(returnType === 'void' && /return\s+\S/.test(body)){
+      builderFeedback.className = 'feedback-box show err';
+      builderFeedback.innerHTML = '<span class="fb-icon" aria-hidden="true">!</span><span>Error: a void method cannot return a value. Remove the value after "return", or change the return type.</span>';
+      return;
+    }
+
+    var params = Array.prototype.slice.call(paramList.querySelectorAll('.param-row')).map(function(row){
+      var type = row.querySelector('select').value;
+      var pname = row.querySelector('input').value.trim() || 'value';
+      return { type: type, name: pname };
+    });
+    var paramStr = params.map(function(p){ return p.type + ' ' + p.name; }).join(', ');
+
+    var code = '<span class="c-mod">public</span> <span class="c-ret">' + escapeHtml(returnType) + '</span> ' +
+      '<span class="c-name">' + escapeHtml(methodName) + '</span>(' +
+      '<span class="c-param">' + escapeHtml(paramStr) + '</span>) {\n    ' +
+      escapeHtml(body).split('\n').join('\n    ') + '\n}';
+    builderOutput.innerHTML = code;
+
+    builderFeedback.className = 'feedback-box show ok';
+    var kind = (params.length > 0 ? 'takes ' + params.length + ' parameter' + (params.length>1?'s':'') : 'takes no parameters') +
+      ' and ' + (returnType === 'void' ? 'returns nothing.' : 'returns a ' + returnType + '.');
+    builderFeedback.innerHTML = '<span class="fb-icon" aria-hidden="true">✓</span><span>Looks good — this method ' + kind + '</span>';
+
+    var callArgs = params.map(function(p){
+      if(p.type === 'int' || p.type === 'double') return '5';
+      if(p.type === 'boolean') return 'true';
+      return '"' + 'sample' + '"';
+    }).join(', ');
+    var callLine = (returnType === 'void' ? '' : returnType + ' result = ') + methodName + '(' + callArgs + ');';
+    var resultLine = returnType === 'void'
+      ? 'Method ran. No value was returned (void).'
+      : 'Method ran. "result" now holds a ' + returnType + ' value.';
+    builderConsole.textContent = callLine + '  →  ' + resultLine;
+
+    var stepFive = document.querySelector('a[href="#builder"]');
+  });
+
+  /* ---------- Call stack demo ---------- */
+  document.getElementById('stack-run').addEventListener('click', function(){
+    var visual = document.getElementById('stack-visual');
+    visual.innerHTML = '';
+    var frameMain = document.createElement('div');
+    frameMain.className = 'stack-frame';
+    frameMain.textContent = 'main()  —  calling square(6)…';
+    visual.appendChild(frameMain);
+
+    setTimeout(function(){
+      var frameSquare = document.createElement('div');
+      frameSquare.className = 'stack-frame';
+      frameSquare.textContent = 'square(n = 6)  —  running: return n * n;';
+      visual.appendChild(frameSquare);
+
+      setTimeout(function(){
+        frameSquare.classList.add('returning');
+        frameSquare.textContent = 'square(n = 6)  —  returning 36 to main()';
+
+        setTimeout(function(){
+          frameSquare.remove();
+          frameMain.textContent = 'main()  —  received 36. result = 36';
+          frameMain.classList.add('returning');
+        }, 900);
+      }, 900);
+    }, 700);
+  });
+
+  /* ---------- Quiz: one attempt per question, then lock ---------- */
+  var score = 0;
+  var attempted = {};
+  var TOTAL_QUESTIONS = document.querySelectorAll('.check-btn').length;
+
+  function lockQuestion(q, selected){
+    var group = document.querySelectorAll('input[name="q' + q + '"]');
+    group.forEach(function(input){
+      input.disabled = true;
+      input.closest('.quiz-option').classList.add('locked');
+    });
+    var btn = document.querySelector('.check-btn[data-q="' + q + '"]');
+    btn.disabled = true;
+    btn.textContent = 'Answer locked';
+  }
+
+  function maybeShowResults(){
+    var answeredCount = Object.keys(attempted).length;
+    document.getElementById('answered-val').textContent = answeredCount;
+    if(answeredCount >= TOTAL_QUESTIONS){
+      var nameField = document.getElementById('student-name');
+      var name = nameField.value.trim() || 'Student';
+      var panel = document.getElementById('results-panel');
+      document.getElementById('results-name').textContent = name;
+      document.getElementById('results-score').textContent = score;
+      panel.hidden = false;
+      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }
+
+  document.querySelectorAll('.check-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var q = btn.getAttribute('data-q');
+      if(attempted['q' + q]) return; // already used the single attempt
+
+      var correct = btn.getAttribute('data-correct');
+      var selected = document.querySelector('input[name="q' + q + '"]:checked');
+      var fb = document.getElementById('fb-' + q);
+
+      if(!selected){
+        fb.className = 'feedback-box show err';
+        fb.innerHTML = '<span class="fb-icon" aria-hidden="true">!</span><span>Please select an answer before checking — you only get one attempt per question.</span>';
+        return;
+      }
+
+      var isCorrect = selected.value === correct;
+      if(isCorrect){
+        fb.className = 'feedback-box show ok';
+        fb.innerHTML = '<span class="fb-icon" aria-hidden="true">✓</span><span>Correct!</span>';
+        score++;
+      } else {
+        fb.className = 'feedback-box show err';
+        fb.innerHTML = '<span class="fb-icon" aria-hidden="true">!</span><span>Not quite. The correct answer is highlighted below for review.</span>';
+        var correctLabel = document.querySelector('input[name="q' + q + '"][value="' + correct + '"]').closest('.quiz-option');
+        correctLabel.style.borderColor = 'var(--teal)';
+        correctLabel.style.boxShadow = '0 0 0 1px var(--teal) inset';
+      }
+
+      attempted['q' + q] = true;
+      lockQuestion(q, selected);
+      maybeShowResults();
+    });
+  });
+
+})();
+</script>
+
+</body>
+</html>
