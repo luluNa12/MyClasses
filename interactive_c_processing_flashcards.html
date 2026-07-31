@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C++ Processing Flashcards</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        .flip-card {
+            background-color: transparent;
+            perspective: 1000px;
+            height: 350px;
+        }
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .flip-card-front {
+            background-color: #ffffff;
+            color: #1e293b;
+            border: 2px solid #e2e8f0;
+        }
+        .flip-card-back {
+            background-color: #3b82f6;
+            color: white;
+            transform: rotateY(180deg);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col items-center py-12 px-4 font-sans">
+
+    <div class="max-w-2xl w-full">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-slate-800 mb-2">C++ Program Processing</h1>
+            <p class="text-slate-600">Problem Analysis, Coding, & Execution Cycle</p>
+        </header>
+
+        <!-- Flashcard Container -->
+        <div id="card-container" class="flip-card w-full mb-8" onclick="toggleFlip()">
+            <div class="flip-card-inner" id="card-inner">
+                <div class="flip-card-front">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-blue-500 mb-4">Question</span>
+                    <p id="front-text" class="text-xl md:text-2xl font-medium text-center"></p>
+                    <p id="hint-text" class="mt-6 text-sm text-slate-400 italic"></p>
+                </div>
+                <div class="flip-card-back">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-blue-100 mb-4">Answer</span>
+                    <p id="back-text" class="text-lg md:text-xl text-center leading-relaxed"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="flex flex-col items-center space-y-6">
+            <div class="flex items-center space-x-4">
+                <button onclick="prevCard()" class="px-6 py-2 bg-white border border-slate-300 rounded-lg shadow-sm hover:bg-slate-50 transition-colors text-slate-700 font-medium">Previous</button>
+                <span id="counter" class="text-slate-600 font-mono">1 / 25</span>
+                <button onclick="nextCard()" class="px-6 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition-colors font-medium">Next</button>
+            </div>
+            
+            <div class="w-full bg-slate-200 rounded-full h-2">
+                <div id="progress-bar" class="bg-blue-500 h-2 rounded-full transition-all duration-300" style="width: 4%"></div>
+            </div>
+            
+            <p class="text-xs text-slate-400">Click the card to flip</p>
+        </div>
+    </div>
+
+    <script>
+        const cards = [
+            { front: "Algorithm", back: "A step-by-step problem-solving process in which a solution is achieved in a finite amount of time.", hint: "Think of a recipe for a solution." },
+            { front: "Step 1 of Processing a C++ Program", back: "Use a text editor to create the source code (source program).", hint: "The writing phase." },
+            { front: "Source Program", back: "The program code written in a high-level language like C++.", hint: "What the programmer creates in the editor." },
+            { front: "Preprocessor Directive Symbol", back: "The character $#$.", hint: "Every directive begins with this." },
+            { front: "Step 2 of Processing a C++ Program", back: "The Preprocessor processes commands starting with $#$ (like `#include`).", hint: "The 'Secretary' in the analogy." },
+            { front: "Function of `#include <iostream>`", back: "Tells the preprocessor to include tools for standard input/output (like `cin` and `cout`).", hint: "Input/Output Stream." },
+            { front: "Step 3 of Processing a C++ Program", back: "Using the Compiler to check language rules and translate code.", hint: "The 'Manager' in the analogy." },
+            { front: "Compiler: Syntax Checking", back: "The compiler checks that the program obeys the language rules (syntax).", hint: "Like checking grammar." },
+            { front: "Object Program", back: "The machine language version of the program generated by the compiler.", hint: "The output of the compilation step." },
+            { front: "Step 4 of Processing a C++ Program", back: "The Linker combines the object program with library resources to create executable code.", hint: "Connecting pieces together." },
+            { front: "Linker", back: "A program that combines the object program with prewritten code from the library.", hint: "Creates the .exe file." },
+            { front: "The Library (in C++)", back: "A collection of prewritten code, such as mathematical functions, available for use.", hint: "Pre-existing resources." },
+            { front: "Step 5 of Processing a C++ Program", back: "The Loader places the executable program into main memory.", hint: "Loading into RAM." },
+            { front: "Step 6 of Processing a C++ Program", back: "Execution of the program.", hint: "The final step where results are produced." },
+            { front: "Integrated Development Environment (IDE)", back: "User-friendly software that integrates the editor, compiler, linker, and other tools.", hint: "Examples: Visual Studio, Code::Blocks." },
+            { front: "Step 1: Problem Analysis-Coding-Execution Cycle", back: "Analyze the problem: outline requirements and design an algorithm.", hint: "The planning phase." },
+            { front: "Step 2: Problem Analysis-Coding-Execution Cycle", back: "Implement the algorithm: write code and verify it works.", hint: "The implementation phase." },
+            { front: "Step 3: Problem Analysis-Coding-Execution Cycle", back: "Maintain the program: modify it if the problem domain changes.", hint: "The upkeep phase." },
+            { front: "Handling Complex Problems", back: "Divide the problem into smaller subproblems and design algorithms for each.", hint: "Divide and conquer." },
+            { front: "Compiler Logic Limitation", back: "The compiler ensures syntax rules are followed, but does NOT guarantee the program will run correctly (logic errors).", hint: "It checks syntax, not logic." },
+            { front: "Formula for Rectangle Perimeter", back: "$Perimeter = 2 \\times (length + width)$", hint: "Distance around the outside." },
+            { front: "Formula for Rectangle Area", back: "$Area = length \\times width$", hint: "Total space inside." },
+            { front: "Formula for Average Test Score (5 tests)", back: "$average = \\frac{sum}{5}$", hint: "Sum divided by count." },
+            { front: "Grade A Logic Requirement", back: "If $average \\ge 90$, then $grade = A$.", hint: "The threshold for the highest grade." },
+            { front: "Class Average Formula (10 students)", back: "$classAverage = \\frac{totalAverage}{10}$", hint: "Average of all individual student averages." }
+        ];
+
+        let currentIndex = 0;
+        const cardContainer = document.getElementById('card-container');
+        const cardInner = document.getElementById('card-inner');
+        const frontText = document.getElementById('front-text');
+        const backText = document.getElementById('back-text');
+        const hintText = document.getElementById('hint-text');
+        const counter = document.getElementById('counter');
+        const progressBar = document.getElementById('progress-bar');
+
+        function updateCard() {
+            cardContainer.classList.remove('flipped');
+            setTimeout(() => {
+                const card = cards[currentIndex];
+                frontText.innerText = card.front;
+                backText.innerText = card.back;
+                hintText.innerText = card.hint ? `Hint: ${card.hint}` : "";
+                counter.innerText = `${currentIndex + 1} / ${cards.length}`;
+                progressBar.style.width = `${((currentIndex + 1) / cards.length) * 100}%`;
+                
+                // Trigger MathJax re-render
+                if (window.MathJax) {
+                    MathJax.typesetPromise();
+                }
+            }, 150);
+        }
+
+        function toggleFlip() {
+            cardContainer.classList.toggle('flipped');
+        }
+
+        function nextCard() {
+            currentIndex = (currentIndex + 1) % cards.length;
+            updateCard();
+        }
+
+        function prevCard() {
+            currentIndex = (currentIndex - 1 + cards.length) % cards.length;
+            updateCard();
+        }
+
+        // Initialize first card
+        updateCard();
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') nextCard();
+            if (e.key === 'ArrowLeft') prevCard();
+            if (e.key === 'Enter') toggleFlip();
+        });
+    </script>
+</body>
+</html>
